@@ -1,6 +1,9 @@
 import io
 
 from torchtext import data
+import textformer.utils.logging as l
+
+logger = l.get_logger(__name__)
 
 
 class GenerativeDataset(data.Dataset):
@@ -14,23 +17,54 @@ class GenerativeDataset(data.Dataset):
 
         """
 
+        logger.info('Overriding class: torchtext.data.Dataset -> GenerativeDataset.')
+
         #
         fields = [('text', field)]
 
         #
-        examples = []
+        text = self._load_text(file_path, field)
 
-        source = []
-        
         #
-        with io.open(file_path, mode='r', encoding='utf-8') as f:
+        example = [data.Example.fromlist([text], fields)]
+
+        #
+        super(GenerativeDataset, self).__init__(example, fields, **kwargs)
+
+        logger.info('Class overrided.')
+
+    def _load_text(self, file_path, field):
+        """
+        """
+
+        logger.debug(f'Loading {file_path} ...')
+
+        #
+        try:
             #
-            for line in f:
+            with io.open(file_path, mode='r', encoding='utf-8') as f:
                 #
-                source += field.preprocess(line)
+                text = []
 
                 #
-        examples.append(data.Example.fromlist([source], fields))
+                for line in f:
+                    #
+                    text += field.preprocess(line)
 
-        #
-        super(GenerativeDataset, self).__init__(examples, fields, **kwargs)
+                logger.debug(f'Data loaded.')
+
+                return text
+        
+        # If file can not be loaded
+        except FileNotFoundError:
+            # Creates an error
+            e = f'File not found: {file_path}.'
+
+            # Logs the error
+            logger.error(e)
+
+            raise
+            
+
+
+        

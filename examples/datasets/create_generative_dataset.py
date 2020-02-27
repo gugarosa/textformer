@@ -16,5 +16,5 @@ field.build_vocab(dataset)
 # Creates an iterator that backpropagates through time
 iterator = BPTTIterator(dataset, batch_size=16, bptt_len=10)
 
-for i in iterator:
-    print(i.text, i.target)
+# for i in iterator:
+#     print(i.text, i.target)
