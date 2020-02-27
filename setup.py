@@ -20,6 +20,7 @@ setup(name='textformer',
           'tests': ['coverage',
                     'pytest',
                     'pytest-pep8',
+                    'torch'
                     ],
       },
       classifiers=[
