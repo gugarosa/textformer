@@ -14,13 +14,14 @@ setup(name='textformer',
       license='GPL-3.0',
       install_requires=['coverage>=5.0.3',
                         'pylint>=2.4.4',
-                        'pytest>=5.3.5'
+                        'pytest>=5.3.5',
+                        'torch>=1.4.0',
+                        'torchtext>=0.5.0'
                         ],
       extras_require={
           'tests': ['coverage',
                     'pytest',
                     'pytest-pep8',
-                    'torch'
                     ],
       },
       classifiers=[
