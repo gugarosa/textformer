@@ -36,7 +36,7 @@ class GenerativeDataset(data.Dataset):
         logger.info('Class overrided.')
 
     def _load_data(self, file_path, fields):
-        """Loads a .txt file and creates a list of torchtext Example classes.
+        """Loads a text file and creates a list of torchtext Example classes.
 
         Args:
             file_path (str): Path to the file that will be loaded.

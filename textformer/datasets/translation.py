@@ -1,5 +1,5 @@
-import os
 import io
+import os
 
 import textformer.utils.logging as l
 from torchtext import data
@@ -42,7 +42,7 @@ class TranslationDataset(data.Dataset):
         logger.info('Class overrided.')
 
     def _load_data(self, source_path, target_path, fields):
-        """Loads a .txt file and creates a list of torchtext Example classes.
+        """Loads text files and creates a list of torchtext Example classes.
 
         Args:
             source_path (str): Path to the source file that will be loaded.
@@ -87,3 +87,31 @@ class TranslationDataset(data.Dataset):
             logger.error(e)
 
             raise
+
+    @classmethod
+    def splits(cls, file_path, extensions, fields, path=None, train='train', validation='val', test='test', **kwargs):
+        """Creates TranslationDataset objects, used for text translation.
+
+        Args:
+            file_path (str): Path to the file that will be loaded.
+            extensions (tuple): Extensions to the path for each language.
+            fields (tuple): Tuple of datatype instructions for tensor convertion.
+            train (str): Prefix for the training data.
+            validation (str): Prefix for the validation data.
+            test (str): Prefix for the test data.
+
+        """
+
+        # Gathering the training dataset
+        train_dataset = cls(os.path.join(file_path, train),
+                            extensions, fields, **kwargs)
+
+        # Gathering the validation dataset
+        val_dataset = cls(os.path.join(file_path, validation),
+                          extensions, fields, **kwargs)
+
+        # Gathering the testing dataset
+        test_dataset = cls(os.path.join(file_path, test),
+                           extensions, fields, **kwargs)
+
+        return train_dataset, val_dataset, test_dataset
