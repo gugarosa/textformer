@@ -1,9 +1,97 @@
 import textformer.utils.logging as l
 import torch
+from torch import nn
 import random
 from textformer.core.model import Model
 
 logger = l.get_logger(__name__)
+
+class Encoder(nn.Module):
+    """
+    """
+
+    def __init__(self, n_input=128, n_hidden=128, n_embedding=128, n_layers=1, dropout=0.5):
+        """
+        """
+
+        # Overriding its parent class
+        super(Encoder, self).__init__()
+
+        #
+        # self.n_input = n_input
+
+        # #
+        # self.n_hidden = n_hidden
+
+        # #
+        # self.n_embedding = n_embedding
+
+        # #
+        # self.n_layers = n_layers
+
+        #
+        self.embedding = nn.Embedding(n_input, n_embedding)
+
+        #
+        self.rnn = nn.LSTM(n_embedding, n_hidden, n_layers, dropout=dropout)
+
+        #
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        """
+        """
+
+        #
+        embedded = self.dropout(self.embedding(x))
+
+        #
+        outputs, (hidden, cell) = self.rnn(embedded)
+
+        return hidden, cell
+
+class Decoder(nn.Module):
+    """
+    """
+
+    def __init__(self, n_output=128, n_hidden=128, n_embedding=128, n_layers=1, dropout=0.5):
+        """
+        """
+
+        # Overriding its parent class
+        super(Decoder, self).__init__()
+
+        #
+        self.n_output = n_output
+
+        #
+        self.embedding = nn.Embedding(n_output, n_embedding)
+
+        #
+        self.rnn = nn.LSTM(n_embedding, n_hidden, n_layers, dropout=dropout)
+
+        #
+        self.fc = nn.Linear(n_hidden, n_output)
+
+        #
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x, h, c):
+        """
+        """
+
+        #
+        x = x.unsqueeze(0)
+
+        #
+        embedded = self.dropout(self.embedding(x))
+
+        output, (hidden, cell) = self.rnn(embedded, (h, c))
+
+        pred = self.fc(output.squeeze(0))
+
+        return pred, hidden, cell
+
 
 class Seq2Seq(Model):
     """
@@ -21,6 +109,12 @@ class Seq2Seq(Model):
 
         #
         self.decoder = decoder
+
+        #
+        self.optimizer = torch.optim.Adam(self.parameters())
+
+        #
+        self.loss = nn.CrossEntropyLoss()
 
     def forward(self, x, y, teacher_forcing_ratio=0.5):
         """
