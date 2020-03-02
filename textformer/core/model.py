@@ -86,102 +86,162 @@ class Model(torch.nn.Module):
             # Appends the new value to the list
             self.history[k].append(v)
 
-    def step(self, iterator, clip):
+    def step(self, batch, clip):
+        """Performs a single batch optimization step.
+
+        Args:
+            x (): A tensor containing the inputs.
+            y (): A tensor containing the inputs' labels.
+            clip ():
+
+        """
+
+        #
+        source, target = batch.source, batch.target
+
+        #
+        output = self(source, target)
+
+        #
+        output_size = output.shape[-1]
+
+        #
+        output = output[1:].view(-1, output_size)
+
+        #
+        target = target[1:].view(-1)
+
+        #
+        batch_loss = self.loss(output, target)
+
+        #
+        batch_loss.backward()
+
+        #
+        torch.nn.utils.clip_grad_norm_(self.parameters(), clip)
+
+        #
+        self.optimizer.step()
+
+        return batch_loss.item()
+
+
+    # def step(self, iterator, clip):
+    #     """
+    #     """
+
+    #     #
+    #     self.train()
+
+    #     #
+    #     loss = 0
+
+    #     #
+    #     for i, batch in enumerate(iterator):
+    #         #
+    #         source, target = batch.source, batch.target
+
+    #         #
+    #         self.optimizer.zero_grad()
+
+    #         #
+    #         output = self(source, target)
+
+    #         #
+    #         output_size = output.shape[-1]
+
+    #         #
+    #         output = output[1:].view(-1, output_size)
+
+    #         #
+    #         target = target[1:].view(-1)
+
+    #         #
+    #         batch_loss = self.loss(output, target)
+
+    #         #
+    #         batch_loss.backward()
+
+    #         #
+    #         torch.nn.utils.clip_grad_norm_(self.parameters(), clip)
+
+    #         #
+    #         self.optimizer.step()
+
+    #         #
+    #         loss += batch_loss.item()
+
+    #     return loss / len(iterator)
+
+    def val_step(self, batch):
         """
         """
 
         #
-        self.train()
+        source, target = batch.source, batch.target
 
         #
-        loss = 0
+        output = self(source, target, 0)
 
         #
-        for i, batch in enumerate(iterator):
-            #
-            source, target = batch.source, batch.target
-
-            #
-            self.optimizer.zero_grad()
-
-            #
-            output = self(source, target)
-
-            #
-            output_size = output.shape[-1]
-
-            #
-            output = output[1:].view(-1, output_size)
-
-            #
-            target = target[1:].view(-1)
-
-            #
-            batch_loss = self.loss(output, target)
-
-            #
-            batch_loss.backward()
-
-            #
-            torch.nn.utils.clip_grad_norm_(self.parameters(), clip)
-
-            #
-            self.optimizer.step()
-
-            #
-            loss += batch_loss.item()
-
-        return loss / len(iterator)
-
-    def eval_step(self, iterator):
-        """
-        """
+        output_size = output.shape[-1]
 
         #
-        self.eval()
+        output = output[1:].view(-1, output_size)
 
         #
-        loss = 0
+        target = target[1:].view(-1)
 
         #
-        with torch.no_grad():
-            #
-            for i, batch in enumerate(iterator):
-                #
-                source, target = batch.source, batch.target
+        batch_loss = self.loss(output, target)
 
-                #
-                output = self(source, target, 0)
-
-                #
-                output_size = output.shape[-1]
-
-                #
-                output = output[1:].view(-1, output_size)
-
-                #
-                target = target[1:].view(-1)
-
-                #
-                batch_loss = self.loss(output, target)
-
-                #
-                loss += batch_loss.item()
-
-        return loss / len(iterator)
+        return batch_loss.item()
                 
 
-    def fit(self, train, val, n_epochs=10):
+    def fit(self, train_iterator, val_iterator=None, epochs=10):
+        """Trains the model.
+
+        Args:
+
         """
-        """
 
-        #
-        for e in range(n_epochs):
+        logger.info('Fitting model ...')
+
+        # Iterate through all epochs
+        for epoch in range(epochs):
             #
-            train_loss = self.step(train, 1)
+            self.train()
 
             #
-            val_loss = self.eval_step(val)
+            train_loss = 0
+            val_loss = 0
 
-            print(train_loss, val_loss)
+            #
+            for batch in train_iterator:
+                #
+                train_loss += self.step(batch, 1)
+
+            #
+            train_loss /= len(train_iterator)
+
+            logger.debug(
+                f'Epoch: {epoch+1}/{epochs} | Loss: {train_loss:.4f}')
+
+            #
+            self.eval()
+            
+            #
+            if val_iterator:
+                #
+                with torch.no_grad():
+                    #
+                    for batch in val_iterator:
+                        #
+                        val_loss += self.val_step(batch)
+                    
+            #
+            val_loss /= len(val_iterator)
+
+            logger.debug(
+                    f'Val Loss: {val_loss:.4f}\n')
 
