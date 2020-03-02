@@ -1,5 +1,5 @@
 from textformer.datasets.translation import TranslationDataset
-from textformer.models.seq2seq import Encoder, Decoder, Seq2Seq
+from textformer.models.seq2seq import Decoder, Encoder, Seq2Seq
 from torchtext.data import BucketIterator, Field
 
 # Defines the input file
@@ -31,4 +31,4 @@ decoder = Decoder(n_output=len(target.vocab), n_hidden=512, n_embedding=256, n_l
 seq2seq = Seq2Seq(encoder, decoder)
 
 # Training the model
-seq2seq.fit(train_iterator, val_iterator, 10)
+seq2seq.fit(train_iterator, val_iterator, epochs=10)

@@ -1,7 +1,6 @@
-import torch
-
 import textformer.utils.exception as e
 import textformer.utils.logging as l
+import torch
 
 logger = l.get_logger(__name__)
 
@@ -90,118 +89,75 @@ class Model(torch.nn.Module):
         """Performs a single batch optimization step.
 
         Args:
-            x (): A tensor containing the inputs.
-            y (): A tensor containing the inputs' labels.
-            clip ():
+            batch (tuple): Tuple containing the batches input (x) and target (y).
+            clip (float): Value to clip the gradients.
+
+        Returns:
+            The training loss accross the batch.
 
         """
 
-        #
-        source, target = batch.source, batch.target
+        # Gathers the batch's input and target
+        x, y = batch.source, batch.target
 
-        #
-        output = self(source, target)
+        # Calculate the predictions based on inputs
+        preds = self(x, y)
 
-        #
-        output_size = output.shape[-1]
+        # Reshaping the tensor's size without the batch dimension
+        preds = preds[1:].view(-1, preds.shape[-1])
 
-        #
-        output = output[1:].view(-1, output_size)
+        # Reshaping the tensor's size without the batch dimension
+        y = y[1:].view(-1)
 
-        #
-        target = target[1:].view(-1)
+        # Calculates the batch's loss
+        batch_loss = self.loss(preds, y)
 
-        #
-        batch_loss = self.loss(output, target)
-
-        #
+        # Propagates the gradients backward
         batch_loss.backward()
 
-        #
+        # Clips the gradients
         torch.nn.utils.clip_grad_norm_(self.parameters(), clip)
 
-        #
+        # Perform the parameeters updates
         self.optimizer.step()
 
         return batch_loss.item()
 
-
-    # def step(self, iterator, clip):
-    #     """
-    #     """
-
-    #     #
-    #     self.train()
-
-    #     #
-    #     loss = 0
-
-    #     #
-    #     for i, batch in enumerate(iterator):
-    #         #
-    #         source, target = batch.source, batch.target
-
-    #         #
-    #         self.optimizer.zero_grad()
-
-    #         #
-    #         output = self(source, target)
-
-    #         #
-    #         output_size = output.shape[-1]
-
-    #         #
-    #         output = output[1:].view(-1, output_size)
-
-    #         #
-    #         target = target[1:].view(-1)
-
-    #         #
-    #         batch_loss = self.loss(output, target)
-
-    #         #
-    #         batch_loss.backward()
-
-    #         #
-    #         torch.nn.utils.clip_grad_norm_(self.parameters(), clip)
-
-    #         #
-    #         self.optimizer.step()
-
-    #         #
-    #         loss += batch_loss.item()
-
-    #     return loss / len(iterator)
-
     def val_step(self, batch):
+        """Performs a single batch evaluation step.
+
+        Args:
+            batch (tuple): Tuple containing the batches input (x) and target (y).
+
+        Returns:
+            The validation loss accross the batch.
+
         """
-        """
 
-        #
-        source, target = batch.source, batch.target
+        # Gathers the batch's input and target
+        x, y = batch.source, batch.target
 
-        #
-        output = self(source, target, 0)
+        # Calculate the predictions based on inputs
+        preds = self(x, y, teacher_forcing_ratio=0)
 
-        #
-        output_size = output.shape[-1]
+        # Reshaping the tensor's size without the batch dimension
+        preds = preds[1:].view(-1, preds.shape[-1])
 
-        #
-        output = output[1:].view(-1, output_size)
+        # Reshaping the tensor's size without the batch dimension
+        y = y[1:].view(-1)
 
-        #
-        target = target[1:].view(-1)
-
-        #
-        batch_loss = self.loss(output, target)
+        # Calculates the batch's loss
+        batch_loss = self.loss(preds, y)
 
         return batch_loss.item()
-                
 
     def fit(self, train_iterator, val_iterator=None, epochs=10):
         """Trains the model.
 
         Args:
+            train_iterator (torchtext.data.Iterator): Training data iterator.
+            val_iterator (torchtext.data.Iterator): Validation data iterator.
+            epochs (int): The maximum number of training epochs.
 
         """
 
@@ -209,39 +165,35 @@ class Model(torch.nn.Module):
 
         # Iterate through all epochs
         for epoch in range(epochs):
-            #
+            # Setting the training flag
             self.train()
 
-            #
-            train_loss = 0
-            val_loss = 0
+            # Initializes both losses as zero
+            train_loss, val_loss = 0, 0
 
-            #
+            # For every batch in the iterator
             for batch in train_iterator:
-                #
+                # Calculates the training loss
                 train_loss += self.step(batch, 1)
 
-            #
+            # Gets the mean training loss accross all batches
             train_loss /= len(train_iterator)
 
-            logger.debug(
-                f'Epoch: {epoch+1}/{epochs} | Loss: {train_loss:.4f}')
+            logger.debug(f'Epoch: {epoch+1}/{epochs} | Loss: {train_loss:.4f}')
 
-            #
-            self.eval()
-            
-            #
+            # If there is a validation iterator
             if val_iterator:
-                #
+                # Setting the evalution flag
+                self.eval()
+
+                # Inhibits the gradient from updating the parameters
                 with torch.no_grad():
-                    #
+                    # For every batch in the iterator
                     for batch in val_iterator:
-                        #
+                        # Calculates the validation loss
                         val_loss += self.val_step(batch)
-                    
-            #
-            val_loss /= len(val_iterator)
 
-            logger.debug(
-                    f'Val Loss: {val_loss:.4f}\n')
+                # Gets the mean validation loss accross all batches
+                val_loss /= len(val_iterator)
 
+                logger.debug(f'Val. Loss: {val_loss:.4f}\n')
