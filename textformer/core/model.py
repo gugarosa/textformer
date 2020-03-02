@@ -98,7 +98,7 @@ class Model(torch.nn.Module):
         """
 
         # Gathers the batch's input and target
-        x, y = batch.source, batch.target
+        x, y = batch.text, batch.target
 
         # Calculate the predictions based on inputs
         preds = self(x, y)
@@ -135,7 +135,7 @@ class Model(torch.nn.Module):
         """
 
         # Gathers the batch's input and target
-        x, y = batch.source, batch.target
+        x, y = batch.text, batch.target
 
         # Calculate the predictions based on inputs
         preds = self(x, y, teacher_forcing_ratio=0)

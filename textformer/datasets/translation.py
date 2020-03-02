@@ -26,8 +26,8 @@ class TranslationDataset(data.Dataset):
         logger.info(
             'Overriding class: torchtext.data.Dataset -> TranslationDataset.')
 
-        # Creates `source` and `target` fields from the input field
-        fields = [('source', fields[0]), ('target', fields[1])]
+        # Creates `text` and `target` fields from the input field
+        fields = [('text', fields[0]), ('target', fields[1])]
 
         # Extending file's path with extensions
         source_path, target_path = tuple(

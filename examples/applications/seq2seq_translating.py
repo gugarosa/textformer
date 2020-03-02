@@ -22,10 +22,12 @@ train_iterator, val_iterator, test_iterator = BucketIterator.splits(
     (train_dataset, val_dataset, test_dataset), batch_size=2, sort=False)
 
 # Creating the Encoder
-encoder = Encoder(n_input=len(source.vocab), n_hidden=512, n_embedding=256, n_layers=2)
+encoder = Encoder(n_input=len(source.vocab), n_hidden=512,
+                  n_embedding=256, n_layers=2)
 
 # Creating the Decoder
-decoder = Decoder(n_output=len(target.vocab), n_hidden=512, n_embedding=256, n_layers=2)
+decoder = Decoder(n_output=len(target.vocab), n_hidden=512,
+                  n_embedding=256, n_layers=2)
 
 # Creating the Seq2Seq model
 seq2seq = Seq2Seq(encoder, decoder)
