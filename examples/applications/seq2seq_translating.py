@@ -3,7 +3,7 @@ from textformer.models.seq2seq import Decoder, Encoder, Seq2Seq
 from torchtext.data import BucketIterator, Field
 
 # Defines the device which should be used, e.g., `cpu` or `cuda`
-device = 'cuda'
+device = 'cpu'
 
 # Defines the input file
 file_path = 'data/translation/europarl'
@@ -36,7 +36,7 @@ decoder = Decoder(n_output=len(target.vocab), n_hidden=512,
                   n_embedding=256, n_layers=2)
 
 # Creating the Seq2Seq model
-seq2seq = Seq2Seq(encoder, decoder,
+seq2seq = Seq2Seq(encoder, decoder, init_weights=None,
                   ignore_token=target_pad_index, device=device)
 
 # Training the model

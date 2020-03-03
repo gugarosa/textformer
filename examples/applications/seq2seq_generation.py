@@ -3,7 +3,7 @@ from textformer.models.seq2seq import Decoder, Encoder, Seq2Seq
 from torchtext.data import BPTTIterator, Field
 
 # Defines the device which should be used, e.g., `cpu` or `cuda`
-device = 'cuda'
+device = 'cpu'
 
 # Defines the input file
 file_path = 'data/generative/chapter1_harry.txt'
@@ -18,7 +18,8 @@ dataset = GenerativeDataset(file_path, source)
 source.build_vocab(dataset, min_freq=1)
 
 # Creates an iterator that backpropagates through time
-train_iterator = BPTTIterator(dataset, batch_size=16, bptt_len=10, device=device)
+train_iterator = BPTTIterator(
+    dataset, batch_size=16, bptt_len=10, device=device)
 
 # Creating the Encoder
 encoder = Encoder(n_input=len(source.vocab), n_hidden=512,
@@ -29,7 +30,8 @@ decoder = Decoder(n_output=len(source.vocab), n_hidden=512,
                   n_embedding=256, n_layers=2)
 
 # Creating the Seq2Seq model
-seq2seq = Seq2Seq(encoder, decoder, device=device)
+seq2seq = Seq2Seq(encoder, decoder, init_weights=None,
+                  ignore_toke=None, device=device)
 
 # Training the model
 seq2seq.fit(train_iterator, epochs=10)
