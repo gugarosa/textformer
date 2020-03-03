@@ -151,12 +151,13 @@ class Seq2Seq(Model):
 
     """
 
-    def __init__(self, encoder, decoder, ignore_token=None):
+    def __init__(self, encoder, decoder, init_weights=None, ignore_token=None):
         """Initialization method.
 
         Args:
             encoder (Encoder): An Encoder object.
             decoder (Decoder): A Decoder object.
+            init_weights (tuple): Tuple holding the minimum and maximum values for weights initialization.
             ignore_token (int): The index of a token to be ignore by the loss function.
 
         """
@@ -177,6 +178,13 @@ class Seq2Seq(Model):
 
         # Defining a loss function
         self.loss = nn.CrossEntropyLoss(ignore_index=ignore_token)
+
+        # Check if there is a variable for the weights initialization
+        if init_weights:
+            # Iterate over all possible parameters
+            for _, p in self.named_parameters():
+                # Initializes with a uniform distributed value
+                nn.init.uniform_(p.data, init_weights[0], init_weights[1])
 
         logger.info('Class overrided.')
 

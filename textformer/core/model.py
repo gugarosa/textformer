@@ -1,3 +1,5 @@
+import time
+
 import textformer.utils.exception as e
 import textformer.utils.logging as l
 import torch
@@ -164,7 +166,12 @@ class Model(torch.nn.Module):
         logger.info('Fitting model ...')
 
         # Iterate through all epochs
-        for epoch in range(epochs):
+        for e in range(epochs):
+            logger.info(f'Epoch {e+1}/{epochs}')
+
+            # Calculating the time of the epoch's starting
+            start = time.time()
+
             # Setting the training flag
             self.train()
 
@@ -178,8 +185,6 @@ class Model(torch.nn.Module):
 
             # Gets the mean training loss accross all batches
             train_loss /= len(train_iterator)
-
-            logger.debug(f'Epoch: {epoch+1}/{epochs} | Loss: {train_loss:.4f}')
 
             # If there is a validation iterator
             if val_iterator:
@@ -196,7 +201,14 @@ class Model(torch.nn.Module):
                 # Gets the mean validation loss accross all batches
                 val_loss /= len(val_iterator)
 
-                logger.debug(f'Val. Loss: {val_loss:.4f}\n')
+            # Calculating the time of the epoch's ending
+            end = time.time()
+
+            # Dumps the desired variables to the model's history
+            self.dump(loss=train_loss, val_loss=val_loss, time=end-start)
+            
+            logger.info(f'Loss: {train_loss} | Val Loss: {val_loss}')
+
 
     def evaluate(self, test_iterator):
         """Evaluates the model.
@@ -224,4 +236,4 @@ class Model(torch.nn.Module):
         # Gets the mean validation loss accross all batches
         test_loss /= len(test_iterator)
 
-        logger.debug(f'Loss: {test_loss:.4f}\n')
+        logger.debug(f'Loss: {test_loss}')
