@@ -17,6 +17,9 @@ train_dataset, val_dataset, test_dataset = TranslationDataset.splits(
 source.build_vocab(train_dataset, min_freq=1)
 target.build_vocab(train_dataset, min_freq=1)
 
+# Gathering the <pad> token index for further ignoring
+target_pad_index = target.vocab.stoi[target.pad_token]
+
 # Creates a bucket iterator
 train_iterator, val_iterator, test_iterator = BucketIterator.splits(
     (train_dataset, val_dataset, test_dataset), batch_size=2, sort=False)
@@ -30,7 +33,10 @@ decoder = Decoder(n_output=len(target.vocab), n_hidden=512,
                   n_embedding=256, n_layers=2)
 
 # Creating the Seq2Seq model
-seq2seq = Seq2Seq(encoder, decoder)
+seq2seq = Seq2Seq(encoder, decoder, ignore_token=target_pad_index)
 
 # Training the model
 seq2seq.fit(train_iterator, val_iterator, epochs=10)
+
+# Evaluating the model
+seq2seq.evaluate(test_iterator)

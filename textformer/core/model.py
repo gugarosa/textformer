@@ -197,3 +197,31 @@ class Model(torch.nn.Module):
                 val_loss /= len(val_iterator)
 
                 logger.debug(f'Val. Loss: {val_loss:.4f}\n')
+
+    def evaluate(self, test_iterator):
+        """Evaluates the model.
+
+        Args:
+            test_iterator (torchtext.data.Iterator): Testing data iterator.
+
+        """
+
+        logger.info('Evaluating model ...')
+
+        # Setting the evalution flag
+        self.eval()
+
+        # Initializes the loss as zero
+        test_loss = 0
+
+        # Inhibits the gradient from updating the parameters
+        with torch.no_grad():
+            # For every batch in the iterator
+            for batch in test_iterator:
+                # Calculates the validation loss
+                test_loss += self.val_step(batch)
+
+        # Gets the mean validation loss accross all batches
+        test_loss /= len(test_iterator)
+
+        logger.debug(f'Loss: {test_loss:.4f}\n')

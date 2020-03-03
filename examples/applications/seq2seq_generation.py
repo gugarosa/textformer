@@ -6,23 +6,23 @@ from torchtext.data import BPTTIterator, Field
 file_path = 'data/generative/chapter1_harry.txt'
 
 # Defines a datatype for further tensor conversion
-field = Field(batch_first=True, lower=True)
+source = Field(batch_first=True, lower=True)
 
 # Creates the GenerativeDataset
 dataset = GenerativeDataset(file_path, field)
 
 # Builds the vocabulary
-field.build_vocab(dataset, min_freq=1)
+source.build_vocab(dataset, min_freq=1)
 
 # Creates an iterator that backpropagates through time
 train_iterator = BPTTIterator(dataset, batch_size=16, bptt_len=10)
 
 # Creating the Encoder
-encoder = Encoder(n_input=len(field.vocab), n_hidden=512,
+encoder = Encoder(n_input=len(source.vocab), n_hidden=512,
                   n_embedding=256, n_layers=2)
 
 # Creating the Decoder
-decoder = Decoder(n_output=len(field.vocab), n_hidden=512,
+decoder = Decoder(n_output=len(source.vocab), n_hidden=512,
                   n_embedding=256, n_layers=2)
 
 # Creating the Seq2Seq model

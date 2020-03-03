@@ -5,6 +5,7 @@ from torch import nn, optim
 
 logger = l.get_logger(__name__)
 
+
 class Encoder(nn.Module):
     """An Encoder class is used to supply the encoding part of the Seq2Seq architecture.
 
@@ -69,6 +70,7 @@ class Encoder(nn.Module):
         outputs, (hidden, cell) = self.rnn(embedded)
 
         return hidden, cell
+
 
 class Decoder(nn.Module):
     """A Decoder class is used to supply the decoding part of the Seq2Seq architecture.
@@ -145,15 +147,18 @@ class Decoder(nn.Module):
 
 
 class Seq2Seq(Model):
-    """
+    """A Seq2Seq class implements a Sequence to Sequence learning architecture.
+
     """
 
-    def __init__(self, encoder, decoder):
+    def __init__(self, encoder, decoder, ignore_token=None):
         """Initialization method.
 
         Args:
+            encoder (Encoder): An Encoder object.
+            decoder (Decoder): A Decoder object.
+            ignore_token (int): The index of a token to be ignore by the loss function.
 
-            
         """
 
         logger.info('Overriding class: Model -> Seq2Seq.')
@@ -171,7 +176,7 @@ class Seq2Seq(Model):
         self.optimizer = optim.Adam(self.parameters())
 
         # Defining a loss function
-        self.loss = nn.CrossEntropyLoss()
+        self.loss = nn.CrossEntropyLoss(ignore_index=ignore_token)
 
         logger.info('Class overrided.')
 
