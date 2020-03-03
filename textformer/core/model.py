@@ -15,11 +15,11 @@ class Model(torch.nn.Module):
 
     """
 
-    def __init__(self, use_gpu=False):
+    def __init__(self, device='cpu'):
         """Initialization method.
 
         Args:
-            use_gpu (bool): Whether GPU should be used or not.
+            device (str): Device that model should be trained on, e.g., `cpu` or `cuda`.
 
         """
 
@@ -27,12 +27,12 @@ class Model(torch.nn.Module):
         super(Model, self).__init__()
 
         # Creates a cpu-based device property
-        self.device = 'cpu'
+        self.device = device
 
         # Checks if GPU is avaliable
-        if torch.cuda.is_available() and use_gpu:
+        if torch.cuda.is_available() and device == 'cuda':
             # If yes, change the device property to `cuda`
-            self.device = 'cuda'
+            self.device = device
 
         # Creating an empty dictionary to hold historical values
         self.history = {}
@@ -44,7 +44,7 @@ class Model(torch.nn.Module):
 
     @property
     def device(self):
-        """dict: Indicates which device is being used for computation.
+        """str: Indicates which device is being used for computation.
 
         """
 
@@ -207,7 +207,7 @@ class Model(torch.nn.Module):
             # Dumps the desired variables to the model's history
             self.dump(loss=train_loss, val_loss=val_loss, time=end-start)
             
-            logger.info(f'Loss: {train_loss} | Val Loss: {val_loss}')
+            logger.info(f'Loss: {train_loss} | Val Loss: {val_loss if val_loss else "?"}')
 
 
     def evaluate(self, test_iterator):

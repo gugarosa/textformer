@@ -151,7 +151,7 @@ class Seq2Seq(Model):
 
     """
 
-    def __init__(self, encoder, decoder, init_weights=None, ignore_token=None):
+    def __init__(self, encoder, decoder, init_weights=None, ignore_token=None, device='cpu'):
         """Initialization method.
 
         Args:
@@ -159,13 +159,14 @@ class Seq2Seq(Model):
             decoder (Decoder): A Decoder object.
             init_weights (tuple): Tuple holding the minimum and maximum values for weights initialization.
             ignore_token (int): The index of a token to be ignore by the loss function.
+            device (str): Device that model should be trained on, e.g., `cpu` or `cuda`.
 
         """
 
         logger.info('Overriding class: Model -> Seq2Seq.')
 
         # Overriding its parent class
-        super(Seq2Seq, self).__init__()
+        super(Seq2Seq, self).__init__(device=device)
 
         # Applying the encoder as a property
         self.encoder = encoder
@@ -176,8 +177,15 @@ class Seq2Seq(Model):
         # Defining an optimizer
         self.optimizer = optim.Adam(self.parameters())
 
-        # Defining a loss function
-        self.loss = nn.CrossEntropyLoss(ignore_index=ignore_token)
+        # Checking if there is a token to be ignore
+        if ignore_token:
+            # If yes, define loss based on it
+            self.loss = nn.CrossEntropyLoss(ignore_index=ignore_token)
+        
+        # If there is no token to be ignored
+        else:
+            # Defines the loss as usual
+            self.loss = nn.CrossEntropyLoss()
 
         # Check if there is a variable for the weights initialization
         if init_weights:
@@ -185,6 +193,11 @@ class Seq2Seq(Model):
             for _, p in self.named_parameters():
                 # Initializes with a uniform distributed value
                 nn.init.uniform_(p.data, init_weights[0], init_weights[1])
+
+        # Checks if current device is CUDA-based
+        if self.device == 'cuda':
+            # If yes, uses CUDA in the whole class
+            self.cuda()
 
         logger.info('Class overrided.')
 
@@ -203,7 +216,8 @@ class Seq2Seq(Model):
         """
 
         # Creates an empty tensor to hold the predictions
-        preds = torch.zeros(y.shape[0], y.shape[1], self.decoder.n_output)
+        preds = torch.zeros(y.shape[0], y.shape[1],
+                            self.decoder.n_output, device=self.device)
 
         # Performs the initial encoding
         hidden, cell = self.encoder(x)
