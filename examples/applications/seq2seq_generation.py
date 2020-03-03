@@ -31,7 +31,7 @@ decoder = Decoder(n_output=len(source.vocab), n_hidden=512,
 
 # Creating the Seq2Seq model
 seq2seq = Seq2Seq(encoder, decoder, init_weights=None,
-                  ignore_toke=None, device=device)
+                  ignore_token=None, device=device)
 
 # Training the model
 seq2seq.fit(train_iterator, epochs=10)
