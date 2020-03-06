@@ -1,7 +1,8 @@
-import textformer.utils.logging as l
 import torch
-from textformer.core.model import Model
 from torch import nn, optim
+
+import textformer.utils.logging as l
+from textformer.core.model import Model
 
 logger = l.get_logger(__name__)
 

@@ -1,7 +1,8 @@
 import io
 
+import torchtext.data
+
 import textformer.utils.logging as l
-from torchtext import data
 
 logger = l.get_logger(__name__)
 

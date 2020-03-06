@@ -35,7 +35,7 @@ decoder = Decoder(n_output=len(target.vocab), n_hidden=512, n_embedding=256)
 
 # Creating the ImprovedSeq2Seq model
 improved_seq2seq = ImprovedSeq2Seq(encoder, decoder, init_weights=None,
-                  ignore_token=target_pad_index, device=device)
+                                   ignore_token=target_pad_index, device=device)
 
 # Training the model
 improved_seq2seq.fit(train_iterator, val_iterator, epochs=10)

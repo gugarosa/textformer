@@ -1,7 +1,8 @@
-import textformer.utils.logging as l
 import torch
-from textformer.core.model import Model
 from torch import nn, optim
+
+import textformer.utils.logging as l
+from textformer.core.model import Model
 
 logger = l.get_logger(__name__)
 
@@ -145,7 +146,7 @@ class Decoder(nn.Module):
 
 
 class ImprovedSeq2Seq(Model):
-    """An ImprovedSeq2Seq class implements a Sequence to Sequence learning architecture.
+    """An ImprovedSeq2Seq class implements an improved version of the Sequence to Sequence learning architecture.
 
     """
 
