@@ -3,6 +3,7 @@ from torch import nn, optim
 
 import textformer.utils.logging as l
 from textformer.core.model import Model
+from textformer.models.layers.attention import Attention
 
 logger = l.get_logger(__name__)
 
@@ -32,8 +33,8 @@ class Encoder(nn.Module):
         # Number of input units
         self.n_input = n_input
 
-        # Number of hidden units in the encoder
-        self.n_hidden_enc = n_hidden_enc
+        # Number of hidden units
+        self.n_hidden = n_hidden_enc
 
         # Number of embedding units
         self.n_embedding = n_embedding
@@ -51,7 +52,7 @@ class Encoder(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
         logger.debug(
-            f'Size: ({self.n_input}, {self.n_hidden_enc}) | Embeddings: {self.n_embedding} | Core: {self.rnn} | Output: {self.fc}.')
+            f'Size: ({self.n_input}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.rnn} | Output: {self.fc}.')
 
     def forward(self, x):
         """Performs a forward pass over the architecture.
@@ -82,12 +83,13 @@ class Decoder(nn.Module):
 
     """
 
-    def __init__(self, n_output=128, n_hidden=128, n_embedding=128, dropout=0.5):
+    def __init__(self, n_output=128, n_hidden_enc=128, n_hidden_dec=128, n_embedding=128, dropout=0.5):
         """Initialization method.
 
         Args:
             n_output (int): Number of output units.
-            n_hidden (int): Number of hidden units.
+            n_hidden_enc (int): Number of hidden units in the Encoder.
+            n_hidden_dec (int): Number of hidden units in the Decoder.
             n_embedding (int): Number of embedding units.
             dropout (float): Amount of dropout to be applied.
 
@@ -102,7 +104,7 @@ class Decoder(nn.Module):
         self.n_output = n_output
 
         # Number of hidden units
-        self.n_hidden = n_hidden
+        self.n_hidden = n_hidden_dec
 
         # Number of embedding units
         self.n_embedding = n_embedding
@@ -110,47 +112,56 @@ class Decoder(nn.Module):
         # Embedding layer
         self.embedding = nn.Embedding(n_output, n_embedding)
 
+        # Attention layer
+        self.a = Attention(n_hidden_enc, n_hidden_dec)
+
         # RNN layer
-        self.rnn = nn.GRU(n_embedding + n_hidden, n_hidden)
+        self.rnn = nn.GRU(n_hidden_enc * 2 + n_embedding, n_hidden_dec)
 
         # Fully connected layer
-        self.fc = nn.Linear(n_embedding + n_hidden * 2, n_output)
+        self.fc = nn.Linear(n_hidden_enc * 2 + n_hidden_dec + n_embedding, n_output)
 
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
 
         logger.debug(
-            f'Size: ({self.n_output}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.rnn} | Output: {self.fc}.')
+            f'Size: ({self.n_output}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.rnn} | Attention: {self.a} | Output: {self.fc}.')
 
-    def forward(self, x, h, c):
+    def forward(self, x, h, y):
         """Performs a forward pass over the architecture.
 
         Args:
             x (torch.Tensor): Tensor containing the data.
             h (torch.Tensor): Tensor containing the hidden states.
-            c (torch.Tensor): Tensor containing the cell.
+            y (torch.Tensor): Tensor containing the encoder outputs.
 
         Returns:
-            The prediction, hidden state and cell values.
+            The prediction and hidden state.
 
         """
 
         # Calculates the embedded layer
         embedded = self.dropout(self.embedding(x.unsqueeze(0)))
 
-        # Concatenating the embedding and context tensors
-        concat_embedded = torch.cat((embedded, c), dim=2)
+        # Calculates the attention
+        attention = self.a(h, y).unsqueeze(1)
+
+        # Permutes the encoder outputs
+        encoder_outputs = y.permute(1, 0, 2)
+
+        # Calculates the weights from the attention-based layer
+        weighted = torch.bmm(attention, encoder_outputs).permute(1, 0, 2)
 
         # Calculates the RNN layer
-        output, hidden = self.rnn(concat_embedded, h)
+        output, hidden = self.rnn(torch.cat((embedded, weighted), dim=2), h.unsqueeze(0))
 
         # Concatenating the output with hidden and context tensors
-        output = torch.cat((embedded.squeeze(0), h.squeeze(0), c.squeeze(0)), dim=1)
+        output = torch.cat((output.squeeze(0), weighted.squeeze(0), embedded.squeeze(0)), dim=1)
 
         # Calculates the prediction over the fully connected layer
-        pred = self.fc(output.squeeze(0))
+        pred = self.fc(output)
 
-        return pred, hidden
+        return pred, hidden.squeeze(0)
 
 
 class AttentionSeq2Seq(Model):
@@ -227,7 +238,7 @@ class AttentionSeq2Seq(Model):
                             self.decoder.n_output, device=self.device)
 
         # Performs the initial encoding
-        hidden = context = self.encoder(x)
+        outputs, hidden = self.encoder(x)
 
         # Make sure that the first decoding will come from the true labels
         x = y[0, :]
@@ -235,7 +246,7 @@ class AttentionSeq2Seq(Model):
         # For every possible token in the sequence
         for t in range(1, y.shape[0]):
             # Decodes the tensor
-            pred, hidden = self.decoder(x, hidden, context)
+            pred, hidden = self.decoder(x, hidden, outputs)
 
             # Gathers the prediction of current token
             preds[t] = pred

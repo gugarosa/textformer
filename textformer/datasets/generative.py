@@ -1,6 +1,6 @@
 import io
 
-import torchtext.data
+import torchtext.data as data
 
 import textformer.utils.logging as l
 

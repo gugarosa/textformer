@@ -56,7 +56,7 @@ class Encoder(nn.Module):
             x (torch.Tensor): Tensor containing the data.
 
         Returns:
-            The hidden state and cell values.
+            The hidden state.
 
         """
 
@@ -123,7 +123,7 @@ class Decoder(nn.Module):
             c (torch.Tensor): Tensor containing the cell.
 
         Returns:
-            The prediction, hidden state and cell values.
+            The prediction and hidden state values.
 
         """
 
