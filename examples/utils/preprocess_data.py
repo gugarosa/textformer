@@ -1,5 +1,6 @@
-import textformer.utils.preprocess as p
 from torchtext.data import Pipeline
+
+import textformer.utils.preprocess as p
 
 # Defines an input text
 s = 'Text to be pre-processed!'

@@ -206,9 +206,9 @@ class Model(torch.nn.Module):
 
             # Dumps the desired variables to the model's history
             self.dump(loss=train_loss, val_loss=val_loss, time=end-start)
-            
-            logger.info(f'Loss: {train_loss} | Val Loss: {val_loss if val_loss else "?"}')
 
+            logger.info(
+                f'Loss: {train_loss} | Val Loss: {val_loss if val_loss else "?"}')
 
     def evaluate(self, test_iterator):
         """Evaluates the model.

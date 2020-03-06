@@ -182,7 +182,7 @@ class Seq2Seq(Model):
         if ignore_token:
             # If yes, define loss based on it
             self.loss = nn.CrossEntropyLoss(ignore_index=ignore_token)
-        
+
         # If there is no token to be ignored
         else:
             # Defines the loss as usual

@@ -1,6 +1,9 @@
 from textformer.datasets.translation import TranslationDataset
 from torchtext.data import BucketIterator, Field
 
+# Defines the device which should be used, e.g., `cpu` or `cuda`
+device = 'cpu'
+
 # Defines the input file
 file_path = 'data/translation/europarl'
 
@@ -18,4 +21,4 @@ target.build_vocab(train_dataset, min_freq=1)
 
 # Creates a bucket iterator
 train_iterator, val_iterator, test_iterator = BucketIterator.splits(
-    (train_dataset, val_dataset, test_dataset), batch_size=16)
+    (train_dataset, val_dataset, test_dataset), batch_size=16, sort=False, device=device)

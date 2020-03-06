@@ -46,7 +46,7 @@ def get_logger(logger_name):
 
     Returns:
         A handler to output information into console's.
-        
+
     """
 
     # Creates a logger object

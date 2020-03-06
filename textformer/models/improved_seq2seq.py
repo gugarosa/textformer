@@ -137,7 +137,8 @@ class Decoder(nn.Module):
         output, hidden = self.rnn(concat_embedded, h)
 
         # Concatenating the output with hidden and context tensors
-        output = torch.cat((embedded.squeeze(0), h.squeeze(0), c.squeeze(0)), dim=1)
+        output = torch.cat(
+            (embedded.squeeze(0), h.squeeze(0), c.squeeze(0)), dim=1)
 
         # Calculates the prediction over the fully connected layer
         pred = self.fc(output.squeeze(0))
@@ -180,7 +181,7 @@ class ImprovedSeq2Seq(Model):
         if ignore_token:
             # If yes, define loss based on it
             self.loss = nn.CrossEntropyLoss(ignore_index=ignore_token)
-        
+
         # If there is no token to be ignored
         else:
             # Defines the loss as usual
