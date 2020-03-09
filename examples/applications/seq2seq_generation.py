@@ -9,7 +9,7 @@ device = 'cpu'
 file_path = 'data/generative/chapter1_harry.txt'
 
 # Defines a datatype for further tensor conversion
-source = Field(init_token='<sos>', batch_first=True, lower=True)
+source = Field(lower=True)
 
 # Creates the GenerativeDataset
 dataset = GenerativeDataset(file_path, source)
@@ -36,5 +36,7 @@ seq2seq = Seq2Seq(encoder, decoder, init_weights=None,
 # Training the model
 seq2seq.fit(train_iterator, epochs=50)
 
-#
-seq2seq.sample(source, 'Mr. Dursley had a')
+# Generating artificial text
+text = seq2seq.sample(source, 'Mr. Dursley', length=100, temperature=0.5)
+
+print(' '.join(text))

@@ -1,5 +1,5 @@
 import torch
-from torch import nn, optim
+from torch import distributions, nn, optim
 
 import textformer.utils.logging as l
 from textformer.core.model import Model
@@ -248,3 +248,58 @@ class Seq2Seq(Model):
                 x = pred.argmax(1)
 
         return preds
+
+    def sample(self, field, start, length=10, temperature=1.0):
+        """Generates text by feeding to the network the
+        current token (t) and predicting the next token (t+1).
+
+        Args:
+            field (torchtext.data.Field): Datatype instructions for tensor convertion.
+            start (str): The start string to generate the text.
+            length (int): Length of generated text.
+            temperature (float): A temperature value to sample the token.
+
+        Returns:
+            A list of generated text.
+
+        """
+
+        logger.debug(f'Generating text with length: {length} ...')
+
+        # Setting the evalution flag
+        self.eval()
+
+        # Pre-processing the start text into tokens
+        tokens = field.preprocess(start)
+
+        # Numericalizing the tokens
+        tokens = field.numericalize([tokens])
+
+        # Inhibits the gradient from updating the parameters
+        with torch.no_grad():
+            # Performs the initial encoding
+            hidden, cell = self.encoder(tokens)
+
+        # Removes the batch dimension from the tokens
+        tokens = tokens.squeeze(0)
+
+        # For every possible length
+        for i in range(length):
+            # Inhibits the gradient from updating the parameters
+            with torch.no_grad():
+                # Decodes only the last token, i.e., last sampled token
+                preds, hidden, cell = self.decoder(tokens[-1], hidden, cell)
+
+            # Regularize the prediction with the temperature
+            preds /= temperature
+
+            # Samples a token from a categorical distribution based on the predictions
+            sampled_token = distributions.Categorical(logits=preds).sample()
+
+            # Concatenate the sampled token with the input tokens
+            tokens = torch.cat((tokens, sampled_token.unsqueeze(0)))
+
+        # Decodes the tokens into text
+        sampled_text = [field.vocab.itos[t] for t in tokens]
+
+        return sampled_text
