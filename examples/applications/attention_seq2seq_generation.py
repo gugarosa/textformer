@@ -9,7 +9,7 @@ device = 'cpu'
 file_path = 'data/generative/chapter1_harry.txt'
 
 # Defines a datatype for further tensor conversion
-source = Field(batch_first=True, lower=True)
+source = Field(lower=True)
 
 # Creates the GenerativeDataset
 dataset = GenerativeDataset(file_path, source)
@@ -35,3 +35,8 @@ attention_seq2seq = AttentionSeq2Seq(encoder, decoder, init_weights=None,
 
 # Training the model
 attention_seq2seq.fit(train_iterator, epochs=10)
+
+# Generating artificial text
+text = attention_seq2seq.sample(source, 'Mr. Dursley', length=100, temperature=0.5)
+
+print(' '.join(text))
