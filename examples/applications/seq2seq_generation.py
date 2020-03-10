@@ -8,8 +8,11 @@ device = 'cpu'
 # Defines the input file
 file_path = 'data/generative/chapter1_harry.txt'
 
-# Defines a datatype for further tensor conversion
+# Defines a datatype for further tensor conversion (word tokenization)
 source = Field(lower=True)
+
+# Defines a datatype for further tensor conversion (char tokenization)
+# source = Field(lower=True, tokenize=lambda x: list(x))
 
 # Creates the GenerativeDataset
 dataset = GenerativeDataset(file_path, source)
