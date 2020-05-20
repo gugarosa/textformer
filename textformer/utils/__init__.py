@@ -1,2 +1,2 @@
-"""An utilities package for all common textformer modules.
+"""Utilities package for all common textformer modules.
 """

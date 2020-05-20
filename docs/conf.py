@@ -15,7 +15,6 @@
 import os
 import sys
 
-import textformer
 import sphinx_rtd_theme
 
 sys.path.insert(0, os.path.abspath('.'))
@@ -28,10 +27,10 @@ copyright = '2020, Gustavo de Rosa'
 author = 'Gustavo de Rosa'
 
 # The short X.Y version
-version = textformer.__version__
+version = '1.0.0'
 
 # The full version, including alpha/beta/rc tags
-release = textformer.__version__
+release = '1.0.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -46,7 +45,11 @@ release = textformer.__version__
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
+    'autoapi.extension'
 ]
+
+autoapi_dirs = ['../textformer']
+autoapi_generate_api_docs = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -167,8 +170,8 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'textformer', 'Textformer Documentation',
-     author, 'textformer', 'Transformer-based Text Operators.',
-     'Machine Learning'),
+     author, 'textformer', 'Textformer is a library that covers transformer-based text operators.',
+     'Natural Language Processing'),
 ]
 
 
