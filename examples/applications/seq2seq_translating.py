@@ -31,7 +31,7 @@ train_iterator, val_iterator, test_iterator = BucketIterator.splits(
 # Creating the Seq2Seq model
 seq2seq = Seq2Seq(n_input=len(source.vocab), n_output=len(target.vocab),
                   n_hidden=512, n_embedding=256, n_layers=2,
-                  ignore_token=None, init_weights=None, device=device)
+                  ignore_token=target_pad_index, init_weights=None, device=device)
 
 # Training the model
 seq2seq.fit(train_iterator, val_iterator, epochs=10)
