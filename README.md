@@ -12,7 +12,7 @@ Use Textformer if you need a library or wish to:
 * 1;
 * 2;
 * 3;
-* 4.
+* 4;
 
 Read the docs at [textformer.readthedocs.io](https://textformer.readthedocs.io).
 
@@ -45,6 +45,8 @@ Textformer is based on the following structure, and you should pay attention to 
         - generative
         - translation
     - models
+        - decoders
+        - encoders
         - layers
             - attention
         - attention_seq2seq
@@ -53,6 +55,7 @@ Textformer is based on the following structure, and you should pay attention to 
         - seq2seq
         - transformer
     - utils
+        - constants
         - exception
         - logging
 ```
