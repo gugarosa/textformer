@@ -1,5 +1,6 @@
-from textformer.datasets.translation import TranslationDataset
 from torchtext.data import BucketIterator, Field
+
+from textformer.datasets.translation import TranslationDataset
 
 # Defines the device which should be used, e.g., `cpu` or `cuda`
 device = 'cpu'

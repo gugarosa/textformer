@@ -22,8 +22,7 @@ class GenerativeDataset(data.Dataset):
 
         """
 
-        logger.info(
-            'Overriding class: torchtext.data.Dataset -> GenerativeDataset.')
+        logger.info('Overriding class: torchtext.data.Dataset -> GenerativeDataset.')
 
         # Creates a `text` field from the input field
         fields = [('text', field)]

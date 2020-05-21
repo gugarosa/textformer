@@ -24,8 +24,7 @@ class TranslationDataset(data.Dataset):
 
         """
 
-        logger.info(
-            'Overriding class: torchtext.data.Dataset -> TranslationDataset.')
+        logger.info('Overriding class: torchtext.data.Dataset -> TranslationDataset.')
 
         # Creates `text` and `target` fields from the input field
         fields = [('text', fields[0]), ('target', fields[1])]

@@ -1,6 +1,8 @@
-from textformer.datasets.generative import GenerativeDataset
-from textformer.models.attention_seq2seq import Decoder, Encoder, AttentionSeq2Seq
 from torchtext.data import BPTTIterator, Field
+
+from textformer.datasets.generative import GenerativeDataset
+from textformer.models.attention_seq2seq import (AttentionSeq2Seq, Decoder,
+                                                 Encoder)
 
 # Defines the device which should be used, e.g., `cpu` or `cuda`
 device = 'cpu'

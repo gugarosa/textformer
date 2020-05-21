@@ -1,5 +1,6 @@
-from textformer.datasets.generative import GenerativeDataset
 from torchtext.data import BPTTIterator, Field
+
+from textformer.datasets.generative import GenerativeDataset
 
 # Defines the device which should be used, e.g., `cpu` or `cuda`
 device = 'cpu'

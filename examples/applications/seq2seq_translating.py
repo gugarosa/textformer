@@ -1,6 +1,7 @@
-from textformer.datasets.translation import TranslationDataset
-from textformer.models.seq2seq import Decoder, Encoder, Seq2Seq
 from torchtext.data import BucketIterator, Field
+
+from textformer.datasets.translation import TranslationDataset
+from textformer.models import Seq2Seq
 
 # Defines the device which should be used, e.g., `cpu` or `cuda`
 device = 'cpu'
@@ -27,17 +28,10 @@ target_pad_index = target.vocab.stoi[target.pad_token]
 train_iterator, val_iterator, test_iterator = BucketIterator.splits(
     (train_dataset, val_dataset, test_dataset), batch_size=2, sort=False, device=device)
 
-# Creating the Encoder
-encoder = Encoder(n_input=len(source.vocab), n_hidden=512,
-                  n_embedding=256, n_layers=2)
-
-# Creating the Decoder
-decoder = Decoder(n_output=len(target.vocab), n_hidden=512,
-                  n_embedding=256, n_layers=2)
-
 # Creating the Seq2Seq model
-seq2seq = Seq2Seq(encoder, decoder, init_weights=None,
-                  ignore_token=target_pad_index, device=device)
+seq2seq = Seq2Seq(n_input=len(source.vocab), n_output=len(target.vocab),
+                  n_hidden=512, n_embedding=256, n_layers=2,
+                  ignore_token=None, init_weights=None, device=device)
 
 # Training the model
 seq2seq.fit(train_iterator, val_iterator, epochs=10)

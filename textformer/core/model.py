@@ -1,24 +1,96 @@
 import time
 
+import torch
+from torch import nn, optim
+
 import textformer.utils.exception as e
 import textformer.utils.logging as l
-import torch
 
 logger = l.get_logger(__name__)
 
 
+class Encoder(torch.nn.Module):
+    """An Encoder class is responsible for easily-implementing the encoding part of
+    a neural network, when custom training or additional sets are not needed.
+
+    """
+
+    def __init__(self):
+        """Initialization method.
+
+        Note that basic variables shared by all childs should be declared here, e.g., layers.
+
+        """
+
+        # Overrides its parent class with any custom arguments if needed
+        super(Encoder, self).__init__()
+
+    def forward(self, x):
+        """Method that holds vital information whenever this class is called.
+
+        Note that you will need to implement this method directly on its child. Essentially,
+        each neural network has its own forward pass implementation.
+
+        Args:
+            x (torch.Tensor): A tensorflow's tensor holding input data.
+
+        Raises:
+            NotImplementedError
+
+        """
+
+        raise NotImplementedError
+
+
+class Decoder(torch.nn.Module):
+    """A Decoder class is responsible for easily-implementing the decoding part of
+    a neural network, when custom training or additional sets are not needed.
+
+    """
+
+    def __init__(self):
+        """Initialization method.
+
+        Note that basic variables shared by all childs should be declared here, e.g., layers.
+
+        """
+
+        # Overrides its parent class with any custom arguments if needed
+        super(Decoder, self).__init__()
+
+    def forward(self, x):
+        """Method that holds vital information whenever this class is called.
+
+        Note that you will need to implement this method directly on its child. Essentially,
+        each neural network has its own forward pass implementation.
+
+        Args:
+            x (torch.Tensor): A tensorflow's tensor holding input data.
+
+        Raises:
+            NotImplementedError
+
+        """
+
+        raise NotImplementedError
+
+
 class Model(torch.nn.Module):
-    """The Model class is the basis for any custom model.
+    """A Model class is responsible for customly implementing Sequence-To-Sequence and Transformer architectures.
 
     One can configure, if necessary, different properties or methods that
     can be used throughout all childs.
 
     """
 
-    def __init__(self, device='cpu'):
+    def __init__(self, encoder, decoder, ignore_token=None, init_weights=None, device='cpu'):
         """Initialization method.
 
         Args:
+            encoder (Encoder): Network's encoder architecture.
+            decoder (Decoder): Network's decoder architecture.
+            init_weights (tuple): Tuple holding the minimum and maximum values for weights initialization.
+            ignore_token (int): The index of a token to be ignore by the loss function.
             device (str): Device that model should be trained on, e.g., `cpu` or `cuda`.
 
         """
@@ -26,21 +98,75 @@ class Model(torch.nn.Module):
         # Override its parent class
         super(Model, self).__init__()
 
-        # Creates a cpu-based device property
-        self.device = device
+        # Defining the encoder network
+        self.E = encoder
 
-        # Checks if GPU is avaliable
-        if torch.cuda.is_available() and device == 'cuda':
-            # If yes, change the device property to `cuda`
-            self.device = device
+        # Defining the decoder network
+        self.D = decoder
 
         # Creating an empty dictionary to hold historical values
         self.history = {}
+
+        # Creates a cpu-based device property
+        self.device = device
+
+        # Compiles the network's additional properties
+        self._compile(ignore_token, init_weights)
+
+        # Checks if GPU is avaliable
+        if torch.cuda.is_available() and device == 'cuda':
+            # Uses CUDA in the whole class
+            self.cuda()
 
         # Setting default tensor type to float
         torch.set_default_tensor_type(torch.FloatTensor)
 
         logger.debug(f'Device: {self.device}.')
+
+    @property
+    def E(self):
+        """Encoder: Encoder architecture.
+
+        """
+
+        return self._E
+
+    @E.setter
+    def E(self, E):
+        if not isinstance(E, Encoder):
+            raise e.TypeError('`E` should be a Encoder')
+
+        self._E = E
+
+    @property
+    def D(self):
+        """Decoder: Decoder architecture.
+
+        """
+
+        return self._D
+
+    @D.setter
+    def D(self, D):
+        if not isinstance(D, Decoder):
+            raise e.TypeError('`D` should be a Decoder')
+
+        self._D = D
+
+    @property
+    def history(self):
+        """dict: Dictionary containing historical values from the model.
+
+        """
+
+        return self._history
+
+    @history.setter
+    def history(self, history):
+        if not isinstance(history, dict):
+            raise e.TypeError('`history` should be a dictionary')
+
+        self._history = history
 
     @property
     def device(self):
@@ -57,20 +183,30 @@ class Model(torch.nn.Module):
 
         self._device = device
 
-    @property
-    def history(self):
-        """dict: Dictionary containing historical values from the model.
+    def _compile(self, ignore_token, init_weights):
+        """Compiles the network by setting its optimizer, loss function and additional properties.
 
         """
 
-        return self._history
+        # Defining an optimizer
+        self.optimizer = optim.Adam(self.parameters())
 
-    @history.setter
-    def history(self, history):
-        if not isinstance(history, dict):
-            raise e.TypeError('`history` should be a dictionary')
+        # Checking if there is a token to be ignored
+        if ignore_token:
+            # If yes, define loss based on it
+            self.loss = nn.CrossEntropyLoss(ignore_index=ignore_token)
 
-        self._history = history
+        # If there is no token to be ignored
+        else:
+            # Defines the loss as usual
+            self.loss = nn.CrossEntropyLoss()
+
+        # Check if there is a tuple for the weights initialization
+        if init_weights:
+            # Iterate over all possible parameters
+            for _, p in self.named_parameters():
+                # Initializes with a uniform distributed value
+                nn.init.uniform_(p.data, init_weights[0], init_weights[1])
 
     def dump(self, **kwargs):
         """Dumps any amount of keyword documents to lists in the history property.
@@ -140,7 +276,7 @@ class Model(torch.nn.Module):
         x, y = batch.text, batch.target
 
         # Calculate the predictions based on inputs
-        preds = self(x, y, teacher_forcing_ratio=0)
+        preds = self(x, y, teacher_forcing_ratio=0.0)
 
         # Reshaping the tensor's size without the batch dimension
         preds = preds[1:].view(-1, preds.shape[-1])
@@ -176,7 +312,7 @@ class Model(torch.nn.Module):
             self.train()
 
             # Initializes both losses as zero
-            train_loss, val_loss = 0, 0
+            train_loss, val_loss = 0.0, 0.0
 
             # For every batch in the iterator
             for batch in train_iterator:
@@ -224,7 +360,7 @@ class Model(torch.nn.Module):
         self.eval()
 
         # Initializes the loss as zero
-        test_loss = 0
+        test_loss = 0.0
 
         # Inhibits the gradient from updating the parameters
         with torch.no_grad():

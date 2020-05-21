@@ -2,4 +2,4 @@
     the foundation of textformer common modules.
 """
 
-from textformer.core.model import Model
+from textformer.core.model import Decoder, Encoder, Model

@@ -1,6 +1,8 @@
-from textformer.datasets.translation import TranslationDataset
-from textformer.models.improved_seq2seq import Decoder, Encoder, ImprovedSeq2Seq
 from torchtext.data import BucketIterator, Field
+
+from textformer.datasets.translation import TranslationDataset
+from textformer.models.improved_seq2seq import (Decoder, Encoder,
+                                                ImprovedSeq2Seq)
 
 # Defines the device which should be used, e.g., `cpu` or `cuda`
 device = 'cpu'
