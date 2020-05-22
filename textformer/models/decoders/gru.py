@@ -8,7 +8,7 @@ logger = l.get_logger(__name__)
 
 
 class GRUDecoder(Decoder):
-    """A GRUDecoder class is used to supply the decoding part of the ImprovedSeq2Seq architecture.
+    """A GRUDecoder class is used to supply the decoding part of the JointSeq2Seq architecture.
 
     """
 

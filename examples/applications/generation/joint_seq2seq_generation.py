@@ -1,7 +1,7 @@
 from torchtext.data import BPTTIterator, Field
 
 from textformer.datasets.generative import GenerativeDataset
-from textformer.models import ImprovedSeq2Seq
+from textformer.models import JointSeq2Seq
 
 # Defines the device which should be used, e.g., `cpu` or `cuda`
 device = 'cpu'
@@ -24,8 +24,8 @@ source.build_vocab(dataset, min_freq=1)
 # Creates an iterator that backpropagates through time
 train_iterator = BPTTIterator(dataset, batch_size=16, bptt_len=10, device=device)
 
-# Creating the ImprovedSeq2Seq model
-improved_seq2seq = ImprovedSeq2Seq(n_input=len(source.vocab), n_output=len(source.vocab),
+# Creating the JointSeq2Seq model
+improved_seq2seq = JointSeq2Seq(n_input=len(source.vocab), n_output=len(source.vocab),
                                    n_hidden=512, n_embedding=256, ignore_token=None,
                                    init_weights=None, device=device)
 

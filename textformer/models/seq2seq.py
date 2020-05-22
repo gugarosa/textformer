@@ -12,6 +12,10 @@ logger = l.get_logger(__name__)
 class Seq2Seq(Model):
     """A Seq2Seq class implements a Sequence-To-Sequence learning architecture.
 
+    References:
+        I. Sutskever, O. Vinyals, Q. Le. Sequence to sequence learning with neural networks.
+        Advances in neural information processing systems (2014).
+
     """
 
     def __init__(self, n_input=128, n_output=128, n_hidden=128, n_embedding=128, n_layers=1, dropout=0.5,

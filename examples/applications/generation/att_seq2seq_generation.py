@@ -1,7 +1,7 @@
 from torchtext.data import BPTTIterator, Field
 
 from textformer.datasets.generative import GenerativeDataset
-from textformer.models import AttentionSeq2Seq
+from textformer.models import AttSeq2Seq
 
 # Defines the device which should be used, e.g., `cpu` or `cuda`
 device = 'cpu'
@@ -21,8 +21,8 @@ source.build_vocab(dataset, min_freq=1)
 # Creates an iterator that backpropagates through time
 train_iterator = BPTTIterator(dataset, batch_size=16, bptt_len=10, device=device)
 
-# Creating the AttentionSeq2Seq model
-attention_seq2seq = AttentionSeq2Seq(n_input=len(source.vocab), n_output=len(source.vocab),
+# Creating the AttSeq2Seq model
+attention_seq2seq = AttSeq2Seq(n_input=len(source.vocab), n_output=len(source.vocab),
                                      n_hidden_enc=512, n_hidden_dec=512, n_embedding=256,
                                      ignore_token=None, init_weights=None, device=device)
 

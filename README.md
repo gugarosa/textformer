@@ -46,12 +46,19 @@ Textformer is based on the following structure, and you should pay attention to 
         - translation
     - models
         - decoders
+            - att_bi_gru
+            - gru
+            - lstm
         - encoders
+            - bi_gru
+            - gru
+            - lstm
         - layers
             - attention
-        - attention_seq2seq
+        - att_seq2seq
         - conv_seq2seq
-        - improved_seq2seq
+        - joint_seq2seq
+        - padded_att_seq2seq
         - seq2seq
         - transformer
     - utils

@@ -373,3 +373,23 @@ class Model(torch.nn.Module):
         test_loss /= len(test_iterator)
 
         logger.debug(f'Loss: {test_loss}')
+
+    def sample(self, field, start, length=10, temperature=1.0):
+        """Generates text by feeding to the network the
+        current token (t) and predicting the next token (t+1).
+
+        Note that you will need to implement this method directly on its child. Essentially,
+        each neural network has its own sample (text generation) implementation.
+
+        Args:
+            field (torchtext.data.Field): Datatype instructions for tensor convertion.
+            start (str): The start string to generate the text.
+            length (int): Length of generated text.
+            temperature (float): A temperature value to sample the token.
+
+        Raises:
+            NotImplementedError
+
+        """
+
+        raise NotImplementedError

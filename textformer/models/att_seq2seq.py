@@ -3,25 +3,30 @@ from torch import distributions
 
 import textformer.utils.logging as l
 from textformer.core.model import Model
-from textformer.models.decoders import GRUDecoder
-from textformer.models.encoders import GRUEncoder
+from textformer.models.decoders import AttBiGRUDecoder
+from textformer.models.encoders import BiGRUEncoder
 
 logger = l.get_logger(__name__)
 
 
-class ImprovedSeq2Seq(Model):
-    """An ImprovedSeq2Seq class implements an improved version of the Sequence-To-Sequence learning architecture.
+class AttSeq2Seq(Model):
+    """An AttSeq2Seq class implements an attention-based Sequence-To-Sequence learning architecture.
+
+    References:
+        D. Bahdanau, K. Cho, Y. Bengio. Neural machine translation by jointly learning to align and translate.
+        Preprint arXiv:1409.0473 (2014).
 
     """
 
-    def __init__(self, n_input=128, n_output=128, n_hidden=128, n_embedding=128, dropout=0.5,
+    def __init__(self, n_input=128, n_output=128, n_hidden_enc=128, n_hidden_dec=128, n_embedding=128, dropout=0.5,
                  ignore_token=None, init_weights=None, device='cpu'):
         """Initialization method.
 
         Args:
             n_input (int): Number of input units.
             n_output (int): Number of output units.
-            n_hidden (int): Number of hidden units.
+            n_hidden_enc (int): Number of hidden units in the Encoder.
+            n_hidden_dec (int): Number of hidden units in the Decoder.
             n_embedding (int): Number of embedding units.
             dropout (float): Amount of dropout to be applied.
             ignore_token (int): The index of a token to be ignore by the loss function.
@@ -30,16 +35,16 @@ class ImprovedSeq2Seq(Model):
 
         """
 
-        logger.info('Overriding class: Model -> ImprovedSeq2Seq.')
+        logger.info('Overriding class: Model -> AttSeq2Seq.')
 
         # Creating the encoder network
-        E = GRUEncoder(n_input, n_hidden, n_embedding, dropout)
+        E = BiGRUEncoder(n_input, n_hidden_enc, n_hidden_dec, n_embedding, dropout)
 
         # Creating the decoder network
-        D = GRUDecoder(n_output, n_hidden, n_embedding, dropout)
+        D = AttBiGRUDecoder(n_output, n_hidden_enc, n_hidden_dec, n_embedding, dropout)
 
         # Overrides its parent class with any custom arguments if needed
-        super(ImprovedSeq2Seq, self).__init__(E, D, ignore_token, init_weights, device)
+        super(AttSeq2Seq, self).__init__(E, D, ignore_token, init_weights, device)
 
         logger.info('Class overrided.')
 
@@ -61,7 +66,7 @@ class ImprovedSeq2Seq(Model):
         preds = torch.zeros(y.shape[0], y.shape[1], self.D.n_output, device=self.device)
 
         # Performs the initial encoding
-        hidden = context = self.E(x)
+        outputs, hidden = self.E(x)
 
         # Make sure that the first decoding will come from the true labels
         x = y[0, :]
@@ -69,7 +74,7 @@ class ImprovedSeq2Seq(Model):
         # For every possible token in the sequence
         for t in range(1, y.shape[0]):
             # Decodes the tensor
-            pred, hidden = self.D(x, hidden, context)
+            pred, hidden = self.D(x, hidden, outputs)
 
             # Gathers the prediction of current token
             preds[t] = pred
@@ -118,7 +123,7 @@ class ImprovedSeq2Seq(Model):
         # Inhibits the gradient from updating the parameters
         with torch.no_grad():
             # Performs the initial encoding
-            hidden = context = self.E(tokens)
+            outputs, hidden = self.E(tokens)
 
         # Removes the batch dimension from the tokens
         tokens = tokens.squeeze(0)
@@ -128,7 +133,7 @@ class ImprovedSeq2Seq(Model):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
-                preds, hidden = self.D(tokens[-1], hidden, context)
+                preds, hidden = self.D(tokens[-1], hidden, outputs)
 
             # Regularize the prediction with the temperature
             preds /= temperature
