@@ -374,7 +374,7 @@ class Model(torch.nn.Module):
 
         logger.debug(f'Loss: {test_loss}')
 
-    def sample(self, field, start, length=10, temperature=1.0):
+    def generate_text(self, field, start, length=10, temperature=1.0):
         """Generates text by feeding to the network the
         current token (t) and predicting the next token (t+1).
 

@@ -22,15 +22,14 @@ source.build_vocab(dataset, min_freq=1)
 train_iterator = BPTTIterator(dataset, batch_size=16, bptt_len=10, device=device)
 
 # Creating the AttSeq2Seq model
-attention_seq2seq = AttSeq2Seq(n_input=len(source.vocab), n_output=len(source.vocab),
-                                     n_hidden_enc=512, n_hidden_dec=512, n_embedding=256,
-                                     ignore_token=None, init_weights=None, device=device)
+att_seq2seq = AttSeq2Seq(n_input=len(source.vocab), n_output=len(source.vocab),
+                         n_hidden_enc=512, n_hidden_dec=512, n_embedding=256,
+                         ignore_token=None, init_weights=None, device=device)
 
 # Training the model
-attention_seq2seq.fit(train_iterator, epochs=10)
+att_seq2seq.fit(train_iterator, epochs=10)
 
 # Generating artificial text
-text = attention_seq2seq.sample(
-    source, 'Mr. Dursley', length=100, temperature=0.5)
+text = att_seq2seq.generate_text(source, 'Mr. Dursley', length=100, temperature=0.5)
 
 print(' '.join(text))

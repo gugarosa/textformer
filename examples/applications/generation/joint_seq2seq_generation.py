@@ -25,15 +25,14 @@ source.build_vocab(dataset, min_freq=1)
 train_iterator = BPTTIterator(dataset, batch_size=16, bptt_len=10, device=device)
 
 # Creating the JointSeq2Seq model
-improved_seq2seq = JointSeq2Seq(n_input=len(source.vocab), n_output=len(source.vocab),
-                                   n_hidden=512, n_embedding=256, ignore_token=None,
-                                   init_weights=None, device=device)
+joint_seq2seq = JointSeq2Seq(n_input=len(source.vocab), n_output=len(source.vocab),
+                             n_hidden=512, n_embedding=256, ignore_token=None,
+                             init_weights=None, device=device)
 
 # Training the model
-improved_seq2seq.fit(train_iterator, epochs=25)
+joint_seq2seq.fit(train_iterator, epochs=25)
 
 # Generating artificial text
-text = improved_seq2seq.sample(
-    source, 'Mr. Dursley', length=100, temperature=0.5)
+text = joint_seq2seq.generate_text(source, 'Mr. Dursley', length=100, temperature=0.5)
 
 print(' '.join(text))

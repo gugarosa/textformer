@@ -1,7 +1,7 @@
 from torchtext.data import BucketIterator, Field
 
 from textformer.datasets.translation import TranslationDataset
-from textformer.models.improved_seq2seq import JointSeq2Seq
+from textformer.models.joint_seq2seq import JointSeq2Seq
 
 # Defines the device which should be used, e.g., `cpu` or `cuda`
 device = 'cpu'
@@ -29,12 +29,12 @@ train_iterator, val_iterator, test_iterator = BucketIterator.splits(
     (train_dataset, val_dataset, test_dataset), batch_size=2, sort=False, device=device)
 
 # Creating the JointSeq2Seq model
-improved_seq2seq = JointSeq2Seq(n_input=len(source.vocab), n_output=len(target.vocab),
-                                   n_hidden=512, n_embedding=256, ignore_token=target_pad_index,
-                                   init_weights=None, device=device)
+joint_seq2seq = JointSeq2Seq(n_input=len(source.vocab), n_output=len(target.vocab),
+                             n_hidden=512, n_embedding=256, ignore_token=target_pad_index,
+                             init_weights=None, device=device)
 
 # Training the model
-improved_seq2seq.fit(train_iterator, val_iterator, epochs=10)
+joint_seq2seq.fit(train_iterator, val_iterator, epochs=10)
 
 # Evaluating the model
-improved_seq2seq.evaluate(test_iterator)
+joint_seq2seq.evaluate(test_iterator)

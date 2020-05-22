@@ -33,6 +33,6 @@ seq2seq = Seq2Seq(n_input=len(source.vocab), n_output=len(source.vocab),
 seq2seq.fit(train_iterator, epochs=50)
 
 # Generating artificial text
-text = seq2seq.sample(source, 'Mr. Dursley', length=100, temperature=0.5)
+text = seq2seq.generate_text(source, 'Mr. Dursley', length=100, temperature=0.5)
 
 print(' '.join(text))
