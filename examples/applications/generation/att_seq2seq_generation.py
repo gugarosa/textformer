@@ -30,6 +30,6 @@ att_seq2seq = AttSeq2Seq(n_input=len(source.vocab), n_output=len(source.vocab),
 att_seq2seq.fit(train_iterator, epochs=10)
 
 # Generating artificial text
-text = att_seq2seq.generate_text(source, 'Mr. Dursley', length=100, temperature=0.5)
+text = att_seq2seq.generate_text('Mr. Dursley', source, length=100, temperature=0.5)
 
 print(' '.join(text))

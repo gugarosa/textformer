@@ -374,7 +374,7 @@ class Model(torch.nn.Module):
 
         logger.debug(f'Loss: {test_loss}')
 
-    def generate_text(self, field, start, length=10, temperature=1.0):
+    def generate_text(self, start, field, length=10, temperature=1.0):
         """Generates text by feeding to the network the
         current token (t) and predicting the next token (t+1).
 
@@ -382,10 +382,29 @@ class Model(torch.nn.Module):
         each neural network has its own sample (text generation) implementation.
 
         Args:
-            field (torchtext.data.Field): Datatype instructions for tensor convertion.
             start (str): The start string to generate the text.
+            field (torchtext.data.Field): Datatype instructions for tensor convertion.
             length (int): Length of generated text.
             temperature (float): A temperature value to sample the token.
+
+        Raises:
+            NotImplementedError
+
+        """
+
+        raise NotImplementedError
+
+    def translate_text(self, start, src_field, trg_field, max_length=10):
+        """Translates text from the source vocabulary to the target vocabulary.
+
+        Note that you will need to implement this method directly on its child. Essentially,
+        each neural network has its own translation implementation.
+
+        Args:
+            start (str): The string to be translated.
+            src_field (torchtext.data.Field): Source vocabulary datatype instructions for tensor convertion.
+            trg_field (torchtext.data.Field): Target vocabulary datatype instructions for tensor convertion.
+            max_length (int): Maximum length of translated text.
 
         Raises:
             NotImplementedError
