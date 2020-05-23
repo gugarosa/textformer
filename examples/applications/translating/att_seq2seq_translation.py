@@ -38,3 +38,8 @@ att_seq2seq.fit(train_iterator, val_iterator, epochs=10)
 
 # Evaluating the model
 att_seq2seq.evaluate(test_iterator)
+
+# Translating text
+text = att_seq2seq.translate_text('We then put it to a vote', source, target, max_length=10)
+
+print(' '.join(text))

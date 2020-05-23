@@ -147,3 +147,65 @@ class JointSeq2Seq(Model):
         sampled_text = [field.vocab.itos[t] for t in tokens]
 
         return sampled_text
+
+    def translate_text(self, start, src_field, trg_field, max_length=10):
+        """Translates text from the source vocabulary to the target vocabulary.
+
+        Note that you will need to implement this method directly on its child. Essentially,
+        each neural network has its own translation implementation.
+
+        Args:
+            start (str): The string to be translated.
+            src_field (torchtext.data.Field): Source vocabulary datatype instructions for tensor convertion.
+            trg_field (torchtext.data.Field): Target vocabulary datatype instructions for tensor convertion.
+            max_length (int): Maximum length of translated text.
+
+        Returns:
+            A list of translated text.
+
+        """
+
+        logger.debug(f'Translating text with maximum length: {max_length} ...')
+
+        # Setting the evalution flag
+        self.eval()
+
+        # Pre-processing the start text into tokens
+        tokens = src_field.preprocess(start)
+
+        # Adding `<sos>`` and `<eos>` to the tokens
+        tokens = [src_field.init_token] + tokens + [src_field.eos_token]
+
+        # Numericalizing the tokens
+        tokens = src_field.numericalize([tokens])
+
+        # Inhibits the gradient from updating the parameters
+        with torch.no_grad():
+            # Performs the initial encoding
+            hidden = context = self.E(tokens)
+
+        # Creating a tensor with `<sos>` token from target vocabulary
+        tokens = torch.LongTensor([trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0)
+
+        # For every possible token in maximum length
+        for i in range(max_length):
+            # Inhibits the gradient from updating the parameters
+            with torch.no_grad():
+                # Decodes only the last token, i.e., last sampled token
+                preds, hidden = self.D(tokens[-1], hidden, context)
+
+            # Samples a token using argmax
+            sampled_token = preds.argmax(1)
+
+            # Concatenate the sampled token with the input tokens
+            tokens = torch.cat((tokens, sampled_token.unsqueeze(0)))
+
+            # Check if has reached the end of string
+            if sampled_token == trg_field.vocab.stoi[trg_field.eos_token]:
+                # If yes, breaks the loop
+                break
+
+        # Decodes the tokens into text
+        translated_text = [trg_field.vocab.itos[t] for t in tokens]
+
+        return translated_text
