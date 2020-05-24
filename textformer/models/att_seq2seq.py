@@ -118,7 +118,7 @@ class AttSeq2Seq(Model):
         tokens = field.preprocess(start)
 
         # Numericalizing the tokens
-        tokens = field.numericalize([tokens])
+        tokens = field.numericalize([tokens]).to(self.device)
 
         # Inhibits the gradient from updating the parameters
         with torch.no_grad():
@@ -178,7 +178,7 @@ class AttSeq2Seq(Model):
         tokens = [src_field.init_token] + tokens + [src_field.eos_token]
 
         # Numericalizing the tokens
-        tokens = src_field.numericalize([tokens])
+        tokens = src_field.numericalize([tokens]).to(self.device)
 
         # Inhibits the gradient from updating the parameters
         with torch.no_grad():
@@ -186,7 +186,7 @@ class AttSeq2Seq(Model):
             outputs, hidden = self.E(tokens)
 
         # Creating a tensor with `<sos>` token from target vocabulary
-        tokens = torch.LongTensor([trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0)
+        tokens = torch.LongTensor([trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0).to(self.device)
 
         # For every possible token in maximum length
         for i in range(max_length):
