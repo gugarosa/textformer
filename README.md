@@ -58,7 +58,6 @@ Textformer is based on the following structure, and you should pay attention to 
         - att_seq2seq
         - conv_seq2seq
         - joint_seq2seq
-        - padded_att_seq2seq
         - seq2seq
         - transformer
     - utils

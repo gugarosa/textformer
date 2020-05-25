@@ -40,10 +40,11 @@ att_seq2seq.fit(train_iterator, val_iterator, epochs=10)
 # Evaluating the model
 att_seq2seq.evaluate(test_iterator)
 
+# Defining string to be translated
+input_text = source.preprocess('We then put it to a vote')
+
 # Translating text
-text, atts = att_seq2seq.translate_text('We then put it to a vote', source, target, max_length=10)
+translated_text, attentions = att_seq2seq.translate_text(input_text, source, target, max_length=10)
 
-
-
-# print(' '.join(text))
-# print(atts)
+# Displaying a plot with attention values
+v.plot_attention(input_text, translated_text, attentions)

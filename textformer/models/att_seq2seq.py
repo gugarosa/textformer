@@ -177,7 +177,7 @@ class AttSeq2Seq(Model):
         # Adding `<sos>`` and `<eos>` to the tokens
         tokens = [src_field.init_token] + tokens + [src_field.eos_token]
 
-        #
+        # Creating a tensor for holding the attentions
         atts = torch.zeros(max_length, 1, len(tokens)).to(self.device)
 
         # Numericalizing the tokens
@@ -198,7 +198,7 @@ class AttSeq2Seq(Model):
                 # Decodes only the last token, i.e., last sampled token
                 preds, hidden, att = self.D(tokens[-1], hidden, outputs)
 
-            #
+            # Retrieving current token attention values
             atts[i] = att
 
             # Samples a token using argmax
@@ -215,4 +215,4 @@ class AttSeq2Seq(Model):
         # Decodes the tokens into text
         translated_text = [trg_field.vocab.itos[t] for t in tokens]
 
-        return translated_text, atts
+        return translated_text[1:], atts[:len(translated_text) - 1]

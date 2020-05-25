@@ -1,3 +1,4 @@
+import math
 import time
 
 import torch
@@ -343,8 +344,8 @@ class Model(torch.nn.Module):
             # Dumps the desired variables to the model's history
             self.dump(loss=train_loss, val_loss=val_loss, time=end-start)
 
-            logger.info(
-                f'Loss: {train_loss} | Val Loss: {val_loss if val_loss else "?"}')
+            logger.info(f'Loss: {train_loss} | Val Loss: {val_loss if val_loss else "?"}')
+            logger.info(f'PPL: {math.exp(train_loss)} | Val PPL: {math.exp(val_loss) if val_loss else "?"}')
 
     def evaluate(self, test_iterator):
         """Evaluates the model.
@@ -372,7 +373,7 @@ class Model(torch.nn.Module):
         # Gets the mean validation loss accross all batches
         test_loss /= len(test_iterator)
 
-        logger.debug(f'Loss: {test_loss}')
+        logger.info(f'Loss: {test_loss} | PPL: {math.exp(test_loss)}')
 
     def generate_text(self, start, field, length=10, temperature=1.0):
         """Generates text by feeding to the network the

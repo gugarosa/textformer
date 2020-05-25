@@ -208,4 +208,4 @@ class JointSeq2Seq(Model):
         # Decodes the tokens into text
         translated_text = [trg_field.vocab.itos[t] for t in tokens]
 
-        return translated_text
+        return translated_text[1:]

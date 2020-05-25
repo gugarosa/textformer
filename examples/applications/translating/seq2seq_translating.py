@@ -39,7 +39,10 @@ seq2seq.fit(train_iterator, val_iterator, epochs=10)
 # Evaluating the model
 seq2seq.evaluate(test_iterator)
 
-# Translating text
-text = seq2seq.translate_text('We then put it to a vote', source, target, max_length=10)
+# Defining string to be translated
+input_text = source.preprocess('We then put it to a vote')
 
-print(' '.join(text))
+# Translating text
+translated_text = seq2seq.translate_text(input_text, source, target, max_length=10)
+
+print(input_text, translated_text)
