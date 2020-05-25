@@ -1,5 +1,6 @@
 from torchtext.data import BucketIterator, Field
 
+import textformer.utils.visualization as v
 from textformer.datasets.translation import TranslationDataset
 from textformer.models.att_seq2seq import AttSeq2Seq
 
@@ -40,6 +41,9 @@ att_seq2seq.fit(train_iterator, val_iterator, epochs=10)
 att_seq2seq.evaluate(test_iterator)
 
 # Translating text
-text = att_seq2seq.translate_text('We then put it to a vote', source, target, max_length=10)
+text, atts = att_seq2seq.translate_text('We then put it to a vote', source, target, max_length=10)
 
-print(' '.join(text))
+
+
+# print(' '.join(text))
+# print(atts)

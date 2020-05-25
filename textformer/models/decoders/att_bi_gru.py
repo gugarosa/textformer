@@ -91,4 +91,4 @@ class AttBiGRUDecoder(Decoder):
         # Calculates the prediction over the fully connected layer
         pred = self.fc(output)
 
-        return pred, hidden.squeeze(0)
+        return pred, hidden.squeeze(0), attention.squeeze(1)

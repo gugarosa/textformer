@@ -74,7 +74,7 @@ class AttSeq2Seq(Model):
         # For every possible token in the sequence
         for t in range(1, y.shape[0]):
             # Decodes the tensor
-            pred, hidden = self.D(x, hidden, outputs)
+            pred, hidden, _ = self.D(x, hidden, outputs)
 
             # Gathers the prediction of current token
             preds[t] = pred
@@ -133,7 +133,7 @@ class AttSeq2Seq(Model):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
-                preds, hidden = self.D(tokens[-1], hidden, outputs)
+                preds, hidden, _ = self.D(tokens[-1], hidden, outputs)
 
             # Regularize the prediction with the temperature
             preds /= temperature
@@ -177,6 +177,9 @@ class AttSeq2Seq(Model):
         # Adding `<sos>`` and `<eos>` to the tokens
         tokens = [src_field.init_token] + tokens + [src_field.eos_token]
 
+        #
+        atts = torch.zeros(max_length, 1, len(tokens)).to(self.device)
+
         # Numericalizing the tokens
         tokens = src_field.numericalize([tokens]).to(self.device)
 
@@ -193,7 +196,10 @@ class AttSeq2Seq(Model):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
-                preds, hidden = self.D(tokens[-1], hidden, outputs)
+                preds, hidden, att = self.D(tokens[-1], hidden, outputs)
+
+            #
+            atts[i] = att
 
             # Samples a token using argmax
             sampled_token = preds.argmax(1)
@@ -209,4 +215,4 @@ class AttSeq2Seq(Model):
         # Decodes the tokens into text
         translated_text = [trg_field.vocab.itos[t] for t in tokens]
 
-        return translated_text
+        return translated_text, atts
