@@ -15,7 +15,7 @@ def plot_attention(input_text, translated_text, attentions, color_map='hot'):
 
     # Creating a figure and its axis
     fig= plt.figure(figsize=(7, 7))
-    ax = fig.add_subplot()
+    ax = fig.add_subplot(111)
     
     # Detaching and transferring attentions to a numpy array
     attentions = attentions.squeeze(1).detach().cpu().numpy()
