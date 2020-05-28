@@ -239,6 +239,9 @@ class Model(torch.nn.Module):
         # Gathers the batch's input and target
         x, y = batch.text, batch.target
 
+        # Resetting the gradients
+        self.optimizer.zero_grad()
+
         # Calculate the predictions based on inputs
         preds = self(x, y)
 
