@@ -34,7 +34,7 @@ seq2seq = Seq2Seq(n_input=len(source.vocab), n_output=len(target.vocab),
                   ignore_token=target_pad_index, init_weights=None, device=device)
 
 # Training the model
-seq2seq.fit(train_iterator, val_iterator, epochs=1)
+seq2seq.fit(train_iterator, val_iterator, epochs=10)
 
 # Evaluating the model
 seq2seq.evaluate(test_iterator)

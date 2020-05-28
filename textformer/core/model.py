@@ -3,11 +3,10 @@ import time
 
 import torch
 from torch import nn, optim
+from tqdm import tqdm
 
 import textformer.utils.exception as e
 import textformer.utils.logging as l
-
-from tqdm import tqdm
 
 logger = l.get_logger(__name__)
 

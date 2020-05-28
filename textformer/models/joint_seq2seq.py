@@ -1,5 +1,6 @@
 import torch
 from torch import distributions
+from torchtext.data.metrics import bleu_score
 
 import textformer.utils.logging as l
 from textformer.core.model import Model
@@ -165,8 +166,6 @@ class JointSeq2Seq(Model):
 
         """
 
-        logger.debug(f'Translating text with maximum length: {max_length} ...')
-
         # Setting the evalution flag
         self.eval()
 
@@ -209,3 +208,44 @@ class JointSeq2Seq(Model):
         translated_text = [trg_field.vocab.itos[t] for t in tokens]
 
         return translated_text[1:]
+
+    def bleu(self, dataset, src_field, trg_field, max_length=50, n_grams=4):
+        """Calculates BLEU score over a dataset from its difference between targets and predictions.
+
+        Note that you will need to implement this method directly on its child. Essentially,
+        each neural network has its own bleu implementation, due to having different translation methods.
+
+        Args:
+            dataset (torchtext.data.Dataset): Dataset to have its BLEU calculated.
+            src_field (torchtext.data.Field): Source vocabulary datatype instructions for tensor convertion.
+            trg_field (torchtext.data.Field): Target vocabulary datatype instructions for tensor convertion.
+            max_length (int): Maximum length of translated text.
+            n_grams (int): Maxmimum n-grams to be used.
+
+        Returns:
+            BLEU score from input dataset.
+
+        """
+
+        logger.info(f'Calculating BLEU with {n_grams}-grams ...')
+
+        # Defines a list for holding the targets and predictions
+        targets, preds = [], []
+
+        # For every example in the dataset
+        for data in dataset:
+            # Calculates the prediction, i.e., translated text
+            pred = self.translate_text(data.text, src_field, trg_field, max_length)
+
+            # Appends the prediction without the `<eos>` token
+            preds.append(pred[:-1])
+
+            # Appends an iterable of the target
+            targets.append([data.target])
+
+        # Calculates the BLEU score
+        bleu = bleu_score(preds, targets, max_n=n_grams)
+
+        logger.info(f'BLEU: {bleu}')
+
+        return bleu

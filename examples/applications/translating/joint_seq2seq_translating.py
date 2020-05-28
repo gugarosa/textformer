@@ -39,10 +39,5 @@ joint_seq2seq.fit(train_iterator, val_iterator, epochs=10)
 # Evaluating the model
 joint_seq2seq.evaluate(test_iterator)
 
-# Defining string to be translated
-input_text = source.preprocess('We then put it to a vote')
-
-# Translating text
-translated_text = joint_seq2seq.translate_text(input_text, source, target, max_length=10)
-
-print(input_text, translated_text)
+# Calculating BLEU score
+joint_seq2seq.bleu(test_dataset, source, target)
