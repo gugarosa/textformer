@@ -34,15 +34,10 @@ seq2seq = Seq2Seq(n_input=len(source.vocab), n_output=len(target.vocab),
                   ignore_token=target_pad_index, init_weights=None, device=device)
 
 # Training the model
-seq2seq.fit(train_iterator, val_iterator, epochs=10)
+seq2seq.fit(train_iterator, val_iterator, epochs=1)
 
 # Evaluating the model
 seq2seq.evaluate(test_iterator)
 
-# Defining string to be translated
-input_text = source.preprocess('We then put it to a vote')
-
-# Translating text
-translated_text = seq2seq.translate_text(input_text, source, target, max_length=10)
-
-print(input_text, translated_text)
+# Calculating BLEU score
+seq2seq.bleu(test_dataset, source, target)

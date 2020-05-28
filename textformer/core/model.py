@@ -7,6 +7,8 @@ from torch import nn, optim
 import textformer.utils.exception as e
 import textformer.utils.logging as l
 
+from tqdm import tqdm
+
 logger = l.get_logger(__name__)
 
 
@@ -318,13 +320,21 @@ class Model(torch.nn.Module):
             # Initializes both losses as zero
             train_loss, val_loss = 0.0, 0.0
 
-            # For every batch in the iterator
-            for batch in train_iterator:
-                # Calculates the training loss
-                train_loss += self.step(batch, 1)
+            # Defines a `tqdm` variable
+            with tqdm(total=len(train_iterator)) as t:
+                # For every batch in the iterator
+                for i, batch in enumerate(train_iterator):
+                    # Calculates the training loss
+                    train_loss += self.step(batch, 1)
+                     
+                    # Updates the `tqdm` status
+                    t.set_postfix(loss=train_loss / (i + 1))
+                    t.update()
 
             # Gets the mean training loss accross all batches
             train_loss /= len(train_iterator)
+
+            logger.info(f'Loss: {train_loss} | PPL: {math.exp(train_loss)}')
 
             # If there is a validation iterator
             if val_iterator:
@@ -333,24 +343,27 @@ class Model(torch.nn.Module):
 
                 # Inhibits the gradient from updating the parameters
                 with torch.no_grad():
-                    # For every batch in the iterator
-                    for batch in val_iterator:
-                        # Calculates the validation loss
-                        val_loss += self.val_step(batch)
+                    # Defines a `tqdm` variable
+                    with tqdm(total=len(train_iterator)) as t:
+                        # For every batch in the iterator
+                        for i, batch in enumerate(val_iterator):
+                            # Calculates the validation loss
+                            val_loss += self.val_step(batch)
+
+                            # Updates the `tqdm` status
+                            t.set_postfix(val_loss=val_loss / (i + 1))
+                            t.update()
 
                 # Gets the mean validation loss accross all batches
                 val_loss /= len(val_iterator)
+
+                logger.info(f'Val Loss: {val_loss} | Val PPL: {math.exp(val_loss)}')
 
             # Calculating the time of the epoch's ending
             end = time.time()
 
             # Dumps the desired variables to the model's history
             self.dump(loss=train_loss, val_loss=val_loss, time=end-start)
-
-            logger.info(
-                f'Loss: {train_loss} | Val Loss: {val_loss if val_loss else "?"}')
-            logger.info(
-                f'PPL: {math.exp(train_loss)} | Val PPL: {math.exp(val_loss) if val_loss else "?"}')
 
     def evaluate(self, test_iterator):
         """Evaluates the model.
@@ -370,15 +383,21 @@ class Model(torch.nn.Module):
 
         # Inhibits the gradient from updating the parameters
         with torch.no_grad():
-            # For every batch in the iterator
-            for batch in test_iterator:
-                # Calculates the validation loss
-                test_loss += self.val_step(batch)
+            # Defines a `tqdm` variable
+            with tqdm(total=len(test_iterator)) as t:
+                # For every batch in the iterator
+                for i, batch in enumerate(test_iterator):
+                    # Calculates the validation loss
+                    test_loss += self.val_step(batch)
+
+                    # Updates the `tqdm` status
+                    t.set_postfix(test_loss=test_loss / (i + 1))
+                    t.update()
 
         # Gets the mean validation loss accross all batches
         test_loss /= len(test_iterator)
 
-        logger.info(f'Loss: {test_loss} | PPL: {math.exp(test_loss)}')
+        logger.info(f'Test Loss: {test_loss} | Test PPL: {math.exp(test_loss)}')
 
     def generate_text(self, start, field, length=10, temperature=1.0):
         """Generates text by feeding to the network the

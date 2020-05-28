@@ -167,8 +167,6 @@ class Seq2Seq(Model):
 
         """
 
-        logger.debug(f'Translating text with maximum length: {max_length} ...')
-
         # Setting the evalution flag
         self.eval()
 
@@ -230,18 +228,25 @@ class Seq2Seq(Model):
 
         """
 
-        #
+        logger.debug(f'Calculating BLEU with {n_grams}-grams ...')
+
+        # Defines a list for holding the targets and predictions
         targets, preds = [], []
 
-        #
+        # For every example in the dataset
         for data in dataset:
-            #
+            # Calculates the prediction, i.e., translated text
             pred = self.translate_text(data.text, src_field, trg_field, max_length)
 
-            #
+            # Appends the prediction without the `<eos>` token
             preds.append(pred[:-1])
 
-            #
+            # Appends an iterable of the target
             targets.append([data.target])
 
-        return bleu_score(preds, targets, max_n=n_grams)
+        # Calculates the BLEU score
+        bleu = bleu_score(preds, targets, max_n=n_grams)
+
+        logger.debug(f'BLEU: {bleu}')
+
+        return bleu

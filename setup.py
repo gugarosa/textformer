@@ -16,7 +16,8 @@ setup(name='textformer',
                         'pylint>=2.5.2',
                         'pytest>=5.4.2',
                         'torch>=1.5.0',
-                        'torchtext>=0.6.0'
+                        'torchtext>=0.6.0',
+                        'tqdm>=4.46.0'
                         ],
       extras_require={
           'tests': ['coverage',
