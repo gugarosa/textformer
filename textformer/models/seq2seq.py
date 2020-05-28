@@ -1,5 +1,6 @@
 import torch
 from torch import distributions
+from torchtext.data.metrics import bleu_score
 
 import textformer.utils.logging as l
 from textformer.core.model import Model
@@ -210,3 +211,37 @@ class Seq2Seq(Model):
         translated_text = [trg_field.vocab.itos[t] for t in tokens]
 
         return translated_text[1:]
+
+    def bleu(self, dataset, src_field, trg_field, max_length=50, n_grams=4):
+        """Calculates BLEU score over a dataset from its difference between targets and predictions.
+
+        Note that you will need to implement this method directly on its child. Essentially,
+        each neural network has its own bleu implementation, due to having different translation methods.
+
+        Args:
+            dataset (torchtext.data.Dataset): Dataset to have its BLEU calculated.
+            src_field (torchtext.data.Field): Source vocabulary datatype instructions for tensor convertion.
+            trg_field (torchtext.data.Field): Target vocabulary datatype instructions for tensor convertion.
+            max_length (int): Maximum length of translated text.
+            n_grams (int): Maxmimum n-grams to be used.
+
+        Returns:
+            BLEU score from input dataset.
+
+        """
+
+        #
+        targets, preds = [], []
+
+        #
+        for data in dataset:
+            #
+            pred = self.translate_text(data.text, src_field, trg_field, max_length)
+
+            #
+            preds.append(pred[:-1])
+
+            #
+            targets.append([data.target])
+
+        return bleu_score(preds, targets, max_n=n_grams)

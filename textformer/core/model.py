@@ -347,8 +347,10 @@ class Model(torch.nn.Module):
             # Dumps the desired variables to the model's history
             self.dump(loss=train_loss, val_loss=val_loss, time=end-start)
 
-            logger.info(f'Loss: {train_loss} | Val Loss: {val_loss if val_loss else "?"}')
-            logger.info(f'PPL: {math.exp(train_loss)} | Val PPL: {math.exp(val_loss) if val_loss else "?"}')
+            logger.info(
+                f'Loss: {train_loss} | Val Loss: {val_loss if val_loss else "?"}')
+            logger.info(
+                f'PPL: {math.exp(train_loss)} | Val PPL: {math.exp(val_loss) if val_loss else "?"}')
 
     def evaluate(self, test_iterator):
         """Evaluates the model.
@@ -409,6 +411,26 @@ class Model(torch.nn.Module):
             src_field (torchtext.data.Field): Source vocabulary datatype instructions for tensor convertion.
             trg_field (torchtext.data.Field): Target vocabulary datatype instructions for tensor convertion.
             max_length (int): Maximum length of translated text.
+
+        Raises:
+            NotImplementedError
+
+        """
+
+        raise NotImplementedError
+
+    def bleu(self, dataset, src_field, trg_field, max_length=50, n_grams=4):
+        """Calculates BLEU score over a dataset from its difference between targets and predictions.
+
+        Note that you will need to implement this method directly on its child. Essentially,
+        each neural network has its own bleu implementation, due to having different translation methods.
+
+        Args:
+            dataset (torchtext.data.Dataset): Dataset to have its BLEU calculated.
+            src_field (torchtext.data.Field): Source vocabulary datatype instructions for tensor convertion.
+            trg_field (torchtext.data.Field): Target vocabulary datatype instructions for tensor convertion.
+            max_length (int): Maximum length of translated text.
+            n_grams (int): Maxmimum n-grams to be used.
 
         Raises:
             NotImplementedError

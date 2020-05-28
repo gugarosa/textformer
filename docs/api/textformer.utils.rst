@@ -7,7 +7,6 @@ This is a utility package. Common things shared across the application should be
     textformer.utils.constants
     textformer.utils.exception
     textformer.utils.logging
-    textformer.utils.metrics
     textformer.utils.visualization
 
 .. autoapimodule:: textformer.utils
