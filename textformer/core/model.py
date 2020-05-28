@@ -383,21 +383,15 @@ class Model(torch.nn.Module):
 
         # Inhibits the gradient from updating the parameters
         with torch.no_grad():
-            # Defines a `tqdm` variable
-            with tqdm(total=len(test_iterator)) as t:
-                # For every batch in the iterator
-                for i, batch in enumerate(test_iterator):
-                    # Calculates the validation loss
-                    test_loss += self.val_step(batch)
-
-                    # Updates the `tqdm` status
-                    t.set_postfix(test_loss=test_loss / (i + 1))
-                    t.update()
+            # For every batch in the iterator
+            for i, batch in enumerate(test_iterator):
+                # Calculates the test loss
+                test_loss += self.val_step(batch)
 
         # Gets the mean validation loss accross all batches
         test_loss /= len(test_iterator)
 
-        logger.info(f'Test Loss: {test_loss} | Test PPL: {math.exp(test_loss)}')
+        logger.info(f'Loss: {test_loss} | PPL: {math.exp(test_loss)}')
 
     def generate_text(self, start, field, length=10, temperature=1.0):
         """Generates text by feeding to the network the

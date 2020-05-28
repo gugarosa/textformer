@@ -228,7 +228,7 @@ class Seq2Seq(Model):
 
         """
 
-        logger.debug(f'Calculating BLEU with {n_grams}-grams ...')
+        logger.info(f'Calculating BLEU with {n_grams}-grams ...')
 
         # Defines a list for holding the targets and predictions
         targets, preds = [], []
@@ -247,6 +247,6 @@ class Seq2Seq(Model):
         # Calculates the BLEU score
         bleu = bleu_score(preds, targets, max_n=n_grams)
 
-        logger.debug(f'BLEU: {bleu}')
+        logger.info(f'BLEU: {bleu}')
 
         return bleu
