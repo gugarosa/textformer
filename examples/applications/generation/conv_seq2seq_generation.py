@@ -24,7 +24,7 @@ train_iterator = BPTTIterator(dataset, batch_size=16, bptt_len=10, device=device
 # Creating the ConvSeq2Seq model
 conv_seq2seq = ConvSeq2Seq(n_input=len(source.vocab), n_output=len(source.vocab),
                            n_hidden=512, n_embedding=256, n_layers=1, kernel_size=3,
-                           ignore_token=None, init_weights=None, device=device)
+                           scale=0.5, ignore_token=None, init_weights=None, device=device)
 
 # Training the model
 conv_seq2seq.fit(train_iterator, epochs=10)

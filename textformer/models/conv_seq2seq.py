@@ -20,7 +20,7 @@ class ConvSeq2Seq(Model):
     """
 
     def __init__(self, n_input=128, n_output=128, n_hidden=128, n_embedding=128, n_layers=1, kernel_size=3, 
-                 dropout=0.5, max_length=100, ignore_token=None, init_weights=None, device='cpu'):
+                 dropout=0.5, scale=0.5, max_length=100, ignore_token=None, init_weights=None, device='cpu'):
         """Initialization method.
 
         Args:
@@ -31,8 +31,9 @@ class ConvSeq2Seq(Model):
             n_layers (int): Number of convolutional layers.
             kernel_size (int): Size of the convolutional kernels.
             dropout (float): Amount of dropout to be applied.
+            scale (float): Value for the residual learning.
             max_length (int): Maximum length of positional embeddings.
-            ignore_token (int): The index of a token to be ignore by the loss function.
+            ignore_token (int): The index of a token to be ignored by the loss function.
             init_weights (tuple): Tuple holding the minimum and maximum values for weights initialization.
             device (str): Device that model should be trained on, e.g., `cpu` or `cuda`.
 
@@ -41,10 +42,10 @@ class ConvSeq2Seq(Model):
         logger.info('Overriding class: Model -> ConvSeq2Seq.')
 
         # Creating the encoder network
-        E = ConvEncoder(n_input, n_hidden, n_embedding, n_layers, kernel_size, dropout, max_length)
+        E = ConvEncoder(n_input, n_hidden, n_embedding, n_layers, kernel_size, dropout, scale, max_length)
 
         # Creating the decoder network
-        D = ConvDecoder(n_output, n_embedding, n_hidden, n_layers, kernel_size, dropout, ignore_token, device, max_length)
+        D = ConvDecoder(n_output, n_hidden, n_embedding, n_layers, kernel_size, dropout, scale, max_length, ignore_token)
 
         # Overrides its parent class with any custom arguments if needed
         super(ConvSeq2Seq, self).__init__(E, D, ignore_token, init_weights, device)

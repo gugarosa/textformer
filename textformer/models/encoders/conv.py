@@ -14,7 +14,8 @@ class ConvEncoder(Encoder):
 
     """
 
-    def __init__(self, n_input=128, n_hidden=128, n_embedding=128, n_layers=1, kernel_size=3, dropout=0.5, max_length=100):
+    def __init__(self, n_input=128, n_hidden=128, n_embedding=128, n_layers=1,
+                 kernel_size=3, dropout=0.5, scale=0.5, max_length=100):
         """Initializion method.
 
         Args:
@@ -24,6 +25,7 @@ class ConvEncoder(Encoder):
             n_layers (int): Number of convolutional layers.
             kernel_size (int): Size of the convolutional kernels.
             dropout (float): Amount of dropout to be applied.
+            scale (float): Value for the residual learning.
             max_length (int): Maximum length of positional embeddings.
 
         """
@@ -49,12 +51,17 @@ class ConvEncoder(Encoder):
         if kernel_size % 2 == 0:
             # If yes, adds one to make it odd
             self.kernel_size = kernel_size + 1
+        
+        # If it is odd
+        else:
+            # Uses the inputted kernel size
+            self.kernel_size = kernel_size
 
         # Maximum length of positional embeddings
         self.max_length = max_length
 
         # Scale for the residual learning
-        self.scale = math.sqrt(0.5)
+        self.scale = math.sqrt(scale)
 
         # Embedding layers
         self.embedding = nn.Embedding(n_input, n_embedding)
@@ -67,15 +74,14 @@ class ConvEncoder(Encoder):
         # Convolutional layers
         self.conv = nn.ModuleList([nn.Conv1d(in_channels=n_hidden,
                                              out_channels=2 * n_hidden,
-                                             kernel_size=kernel_size,
-                                             padding=(kernel_size - 1) // 2)
+                                             kernel_size=self.kernel_size,
+                                             padding=(self.kernel_size - 1) // 2)
                                    for _ in range(n_layers)])
 
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
 
-        logger.debug(
-            f'Size: ({self.n_input}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.conv}.')
+        logger.debug(f'Size: ({self.n_input}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.conv}.')
 
     def forward(self, x):
         """Performs a forward pass over the architecture.
