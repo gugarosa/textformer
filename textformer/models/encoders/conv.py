@@ -108,7 +108,7 @@ class ConvEncoder(Encoder):
         hidden = self.fc1(embedded).permute(0, 2, 1)
 
         # For every convolutional layer
-        for i, c in enumerate(self.conv):
+        for c in self.conv:
             # Pass down through convolutional layer
             conv = c(self.dropout(hidden))
 

@@ -18,13 +18,16 @@ dataset = GenerativeDataset(file_path, source)
 # Builds the vocabulary
 source.build_vocab(dataset, min_freq=1)
 
+# Gathering the <pad> token index for further ignoring
+pad_index = source.vocab.stoi[source.pad_token]
+
 # Creates an iterator that backpropagates through time
 train_iterator = BPTTIterator(dataset, batch_size=16, bptt_len=10, device=device)
 
 # Creating the ConvSeq2Seq model
 conv_seq2seq = ConvSeq2Seq(n_input=len(source.vocab), n_output=len(source.vocab),
                            n_hidden=512, n_embedding=256, n_layers=1, kernel_size=3,
-                           scale=0.5, ignore_token=None, init_weights=None, device=device)
+                           scale=0.5, ignore_token=pad_index, init_weights=None, device=device)
 
 # Training the model
 conv_seq2seq.fit(train_iterator, epochs=10)
