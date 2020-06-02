@@ -6,6 +6,10 @@ import torch.nn.functional as F
 class Attention(nn.Module):
     """An Attention class is used to provide attention-based mechanisms in a neural network layer.
 
+    References:
+        D. Bahdanau, K. Cho, Y. Bengio. Neural machine translation by jointly learning to align and translate.
+        Preprint arXiv:1409.0473 (2014).
+
     """
 
     def __init__(self, n_hidden_enc, n_hidden_dec):

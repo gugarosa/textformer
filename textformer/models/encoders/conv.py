@@ -90,7 +90,7 @@ class ConvEncoder(Encoder):
             x (torch.Tensor): Tensor containing the data.
 
         Returns:
-            The hidden state and cell values.
+            The convolutions and output values.
 
         """
 

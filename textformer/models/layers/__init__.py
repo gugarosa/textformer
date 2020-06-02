@@ -2,3 +2,4 @@
 """
 
 from textformer.models.layers.attention import Attention
+from textformer.models.layers.residual_attention import ResidualAttention
