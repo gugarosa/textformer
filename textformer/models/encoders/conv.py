@@ -1,3 +1,6 @@
+import math
+
+import torch
 from torch import nn
 
 import textformer.utils.logging as l
@@ -42,15 +45,16 @@ class ConvEncoder(Encoder):
         # Number of layers
         self.n_layers = n_layers
 
-        # Kernel size
+        # Checks if kernel size is even
         if kernel_size % 2 == 0:
+            # If yes, adds one to make it odd
             self.kernel_size = kernel_size + 1
 
         # Maximum length of positional embeddings
         self.max_length = max_length
 
-        #
-        self.scale = torch.sqrt(torch.FloatTensor([0.5]))
+        # Scale for the residual learning
+        self.scale = math.sqrt(0.5)
 
         # Embedding layers
         self.embedding = nn.Embedding(n_input, n_embedding)
@@ -65,12 +69,13 @@ class ConvEncoder(Encoder):
                                              out_channels=2 * n_hidden,
                                              kernel_size=kernel_size,
                                              padding=(kernel_size - 1) // 2)
-                                    for _ in range(n_layers)])
+                                   for _ in range(n_layers)])
 
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
 
-        logger.debug(f'Size: ({self.n_input}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.conv}.')
+        logger.debug(
+            f'Size: ({self.n_input}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.conv}.')
 
     def forward(self, x):
         """Performs a forward pass over the architecture.
@@ -94,26 +99,26 @@ class ConvEncoder(Encoder):
         embedded = self.dropout(x_embedded + pos_embedded)
 
         # Passing down to the first linear layer and permuting its dimension
-        conv = self.fc1(embedded).permute(0, 2, 1)
+        hidden = self.fc1(embedded).permute(0, 2, 1)
 
         # For every convolutional layer
         for i, c in enumerate(self.conv):
             # Pass down through convolutional layer
             conv = c(self.dropout(hidden))
 
-            #
-            conv = F.glu(conv, dim=1)
+            # Activates with a GLU function
+            conv = nn.functional.glu(conv, dim=1)
 
-            #
+            # Sums the activation with its residual learning
             conv = (conv + hidden) * self.scale
 
-            #
+            # Puts back to the next layer input
             hidden = conv
 
-        #
+        # Passes down back to embedding size
         conv = self.fc2(conv.permute(0, 2, 1))
 
-        #
+        # Sums the embedded features with the convolutional-extracted ones
         output = (conv + embedded) * self.scale
 
         return conv, output

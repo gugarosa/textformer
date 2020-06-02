@@ -4,7 +4,7 @@ from torchtext.data.metrics import bleu_score
 
 import textformer.utils.logging as l
 from textformer.core.model import Model
-from textformer.models.decoders import LSTMDecoder
+from textformer.models.decoders import ConvDecoder
 from textformer.models.encoders import ConvEncoder
 
 logger = l.get_logger(__name__)
@@ -44,7 +44,7 @@ class ConvSeq2Seq(Model):
         E = ConvEncoder(n_input, n_hidden, n_embedding, n_layers, kernel_size, dropout, max_length)
 
         # Creating the decoder network
-        D = LSTMDecoder(n_output, n_hidden, n_embedding, n_layers, dropout)
+        D = ConvDecoder(n_output, n_embedding, n_hidden, n_layers, kernel_size, dropout, ignore_token, device, max_length)
 
         # Overrides its parent class with any custom arguments if needed
         super(ConvSeq2Seq, self).__init__(E, D, ignore_token, init_weights, device)
@@ -69,6 +69,6 @@ class ConvSeq2Seq(Model):
         conv, output = self.E(x)
 
         # Decodes the encoded inputs
-        preds, _ = self.decoder(y, conv, output)
+        preds, _ = self.D(y, conv, output)
 
         return preds
