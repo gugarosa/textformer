@@ -6,13 +6,14 @@
 
 ## Welcome to Textformer.
 
-Text.
+Did you ever want to transform text? Are you tired of re-implementing and defining state-of-the-art architectures? If yes, Textformer is the way-to-go! This package provides a straightforward implementation of sequence-to-sequence and transformer-based architectures, fostering all research related to text generation and translation.
 
 Use Textformer if you need a library or wish to:
-* 1;
-* 2;
-* 3;
-* 4;
+
+* Create your network;
+* Design or use pre-loaded state-of-the-art architectures;
+* Mix-and-match encoder and decoders to solve your problem;
+* Because it is fun to transform text.
 
 Read the docs at [textformer.readthedocs.io](https://textformer.readthedocs.io).
 
@@ -47,14 +48,17 @@ Textformer is based on the following structure, and you should pay attention to 
     - models
         - decoders
             - att_bi_gru
+            - conv
             - gru
             - lstm
         - encoders
             - bi_gru
+            - conv
             - gru
             - lstm
         - layers
             - attention
+            - residual_attention
         - att_seq2seq
         - conv_seq2seq
         - joint_seq2seq
