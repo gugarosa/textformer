@@ -101,7 +101,7 @@ class ConvDecoder(Decoder):
             The output and attention values.
 
         """
-        
+
         # Creates the positions tensor
         pos = torch.arange(0, y.shape[1]).unsqueeze(0).repeat(y.shape[0], 1)
 

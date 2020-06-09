@@ -105,15 +105,12 @@ class ConvSeq2Seq(Model):
             # Performs the initial encoding
             conv, output = self.E(tokens)
 
-        # Removes the batch dimension from the tokens
-        tokens = tokens.squeeze(0)
-
         # For every possible length
         for i in range(length):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
-                preds, _ = self.D(tokens[-1].unsqueeze(0), conv, output)
+                preds, _ = self.D(tokens[:,-1].unsqueeze(0), conv, output)
 
             # Regularize the prediction with the temperature
             preds /= temperature
@@ -122,10 +119,10 @@ class ConvSeq2Seq(Model):
             sampled_token = distributions.Categorical(logits=preds).sample()
 
             # Concatenate the sampled token with the input tokens
-            tokens = torch.cat((tokens, sampled_token))
+            tokens = torch.cat((tokens, sampled_token), axis=1)
 
         # Decodes the tokens into text
-        sampled_text = [field.vocab.itos[t] for t in tokens]
+        sampled_text = [field.vocab.itos[t] for t in tokens.squeeze(0)]
 
         return sampled_text
 
@@ -161,7 +158,7 @@ class ConvSeq2Seq(Model):
         # Inhibits the gradient from updating the parameters
         with torch.no_grad():
             # Performs the initial encoding
-            hidden = context = self.E(tokens)
+            conv, output = self.E(tokens)
 
         # Creating a tensor with `<sos>` token from target vocabulary
         tokens = torch.LongTensor([trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0).to(self.device)
@@ -171,13 +168,13 @@ class ConvSeq2Seq(Model):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
-                preds, hidden = self.D(tokens[-1], hidden, context)
+                preds, atts = self.D(tokens, conv, output)
 
             # Samples a token using argmax
-            sampled_token = preds.argmax(1)
+            sampled_token = preds.argmax(2)[:,-1]
 
             # Concatenate the sampled token with the input tokens
-            tokens = torch.cat((tokens, sampled_token.unsqueeze(0)))
+            tokens = torch.cat((tokens, sampled_token.unsqueeze(0)), axis=1)
 
             # Check if has reached the end of string
             if sampled_token == trg_field.vocab.stoi[trg_field.eos_token]:
@@ -185,9 +182,9 @@ class ConvSeq2Seq(Model):
                 break
 
         # Decodes the tokens into text
-        translated_text = [trg_field.vocab.itos[t] for t in tokens]
+        translated_text = [trg_field.vocab.itos[t] for t in tokens.squeeze(0)]
 
-        return translated_text[1:]
+        return translated_text[1:], atts
 
     def bleu(self, dataset, src_field, trg_field, max_length=50, n_grams=4):
         """Calculates BLEU score over a dataset from its difference between targets and predictions.
@@ -215,7 +212,7 @@ class ConvSeq2Seq(Model):
         # For every example in the dataset
         for data in dataset:
             # Calculates the prediction, i.e., translated text
-            pred = self.translate_text(data.text, src_field, trg_field, max_length)
+            pred, _ = self.translate_text(data.text, src_field, trg_field, max_length)
 
             # Appends the prediction without the `<eos>` token
             preds.append(pred[:-1])
