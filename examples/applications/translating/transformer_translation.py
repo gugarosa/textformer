@@ -1,7 +1,7 @@
 from torchtext.data import BucketIterator, Field
 
 from textformer.datasets.translation import TranslationDataset
-from textformer.models.att_seq2seq import AttSeq2Seq
+from textformer.models.transformer import Transformer
 
 # Defines the device which should be used, e.g., `cpu` or `cuda`
 device = 'cpu'
