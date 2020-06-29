@@ -75,7 +75,7 @@ class AttSeq2Seq(Model):
         # For every possible token in the sequence
         for t in range(1, y.shape[0]):
             # Decodes the tensor
-            pred, hidden, _ = self.D(x, hidden, outputs)
+            pred, hidden, _ = self.D(x, outputs, hidden)
 
             # Gathers the prediction of current token
             preds[t] = pred
@@ -134,7 +134,7 @@ class AttSeq2Seq(Model):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
-                preds, hidden, _ = self.D(tokens[-1], hidden, outputs)
+                preds, hidden, _ = self.D(tokens[-1], outputs, hidden)
 
             # Regularize the prediction with the temperature
             preds /= temperature
@@ -195,7 +195,7 @@ class AttSeq2Seq(Model):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
-                preds, hidden, att = self.D(tokens[-1], hidden, outputs)
+                preds, hidden, att = self.D(tokens[-1], outputs, hidden)
 
             # Retrieving current token attention values
             atts[i] = att

@@ -55,11 +55,11 @@ class LSTMDecoder(Decoder):
         logger.debug(
             f'Size: ({self.n_output}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.rnn} | Output: {self.fc}.')
 
-    def forward(self, x_enc, h, c):
+    def forward(self, x, h, c):
         """Performs a forward pass over the architecture.
 
         Args:
-            x_enc (torch.Tensor): Tensor containing the encoded data.
+            x_enc (torch.Tensor): Tensor containing the input data.
             h (torch.Tensor): Tensor containing the hidden states.
             c (torch.Tensor): Tensor containing the cell.
 
@@ -69,7 +69,7 @@ class LSTMDecoder(Decoder):
         """
 
         # Calculates the embedded layer
-        embedded = self.dropout(self.embedding(x_enc.unsqueeze(0)))
+        embedded = self.dropout(self.embedding(x.unsqueeze(0)))
 
         # Calculates the RNN layer
         output, (hidden, cell) = self.rnn(embedded, (h, c))

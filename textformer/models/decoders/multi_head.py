@@ -68,7 +68,7 @@ class MultiHeadDecoder(Decoder):
         # Output layer
         self.out = nn.Linear(n_hidden, n_output)
         
-    def forward(self, y, y_mask, x_enc, x_mask):
+    def forward(self, y, y_mask, x, x_mask):
         """Performs a forward pass over the architecture.
 
         Args:

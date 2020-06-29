@@ -36,7 +36,7 @@ conv_seq2seq = ConvSeq2Seq(n_input=len(source.vocab), n_output=len(target.vocab)
                            init_weights=None, device=device)
 
 # Training the model
-conv_seq2seq.fit(train_iterator, val_iterator, epochs=10)
+conv_seq2seq.fit(train_iterator, val_iterator, epochs=1)
 
 # Evaluating the model
 conv_seq2seq.evaluate(test_iterator)

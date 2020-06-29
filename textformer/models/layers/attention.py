@@ -30,12 +30,12 @@ class Attention(nn.Module):
         # Defining the weight-based layer
         self.v = nn.Linear(n_hidden_dec, 1, bias=False)
 
-    def forward(self, h, y):
+    def forward(self, o, h):
         """Performs a forward pass over the layer.
 
         Args:
+            o (torch.Tensor): Tensor containing the encoded outputs.
             h (torch.Tensor): Tensor containing the hidden states.
-            y (torch.Tensor): Tensor containing the encoder outputs.
 
         Returns:
             The attention-based weights.
@@ -43,10 +43,10 @@ class Attention(nn.Module):
         """
 
         # Repeating the decoder hidden states as its smaller than the encoder ones
-        hidden = h.unsqueeze(1).repeat(1, y.shape[0], 1)
+        hidden = h.unsqueeze(1).repeat(1, o.shape[0], 1)
 
         # Permuting the outputs
-        encoder_outputs = y.permute(1, 0, 2)
+        encoder_outputs = o.permute(1, 0, 2)
 
         # Calculating the energy between decoder hidden state and encoder hidden states
         energy = torch.tanh(self.e(torch.cat((hidden, encoder_outputs), dim=2)))

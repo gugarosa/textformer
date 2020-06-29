@@ -34,7 +34,7 @@ att_seq2seq = AttSeq2Seq(n_input=len(source.vocab), n_output=len(target.vocab),
                          ignore_token=target_pad_index, init_weights=None, device=device)
 
 # Training the model
-att_seq2seq.fit(train_iterator, val_iterator, epochs=10)
+att_seq2seq.fit(train_iterator, val_iterator, epochs=1)
 
 # Evaluating the model
 att_seq2seq.evaluate(test_iterator)

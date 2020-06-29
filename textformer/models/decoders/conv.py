@@ -89,13 +89,13 @@ class ConvDecoder(Decoder):
 
         logger.debug(f'Size: ({self.n_output}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.conv}.')
         
-    def forward(self, y, enc_c, enc_o):
+    def forward(self, y, c, o):
         """Performs a forward pass over the architecture.
 
         Args:
             y (torch.Tensor): Tensor containing the true labels.
-            enc_c (torch.Tensor): Tensor containing the convolutional features.
-            enc_o (torch.Tensor): Tensor containing combined outputs.
+            c (torch.Tensor): Tensor containing the convolutional features.
+            o (torch.Tensor): Tensor containing combined outputs.
 
         Returns:
             The output and attention values.
@@ -116,7 +116,7 @@ class ConvDecoder(Decoder):
         hidden = self.fc1(embedded).permute(0, 2, 1)
         
         # For every convolutional layer
-        for c in self.conv:
+        for layer in self.conv:
             # Applying dropout
             hidden = self.dropout(hidden)
         
@@ -132,13 +132,13 @@ class ConvDecoder(Decoder):
             conv = torch.cat((pad, hidden), dim=2)
         
             # Pass down through convolutional layer
-            conv = c(conv)
+            conv = layer(conv)
 
             # Activates with a GLU function
             conv = nn.functional.glu(conv, dim=1)
 
             # Calculating attention
-            attention, conv = self.a(embedded, conv, enc_c, enc_o)
+            attention, conv = self.a(embedded, conv, c, o)
             
             # Applying residual connections
             conv = (conv + hidden) * self.scale

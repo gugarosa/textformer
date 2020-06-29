@@ -70,12 +70,12 @@ class Seq2Seq(Model):
         hidden, cell = self.E(x)
 
         # Make sure that the first decoding will come from the true labels
-        x_enc = y[0, :]
+        x = y[0, :]
 
         # For every possible token in the sequence
         for t in range(1, y.shape[0]):
             # Decodes the tensor
-            pred, hidden, cell = self.D(x_enc, hidden, cell)
+            pred, hidden, cell = self.D(x, hidden, cell)
 
             # Gathers the prediction of current token
             preds[t] = pred
@@ -86,12 +86,12 @@ class Seq2Seq(Model):
             # If teacher forcing should be used
             if teacher_forcing:
                 # Gathers the new input from the true labels
-                x_enc = y[t]
+                x = y[t]
 
             # If teacher forcing should not be used
             else:
                 # Gathers the new input from the best prediction
-                x_enc = pred.argmax(1)
+                x = pred.argmax(1)
 
         return preds
 
@@ -127,14 +127,14 @@ class Seq2Seq(Model):
             hidden, cell = self.E(tokens)
 
         # Removes the batch dimension from the tokens
-        tokens_enc = tokens.squeeze(0)
+        tokens = tokens.squeeze(0)
 
         # For every possible length
         for i in range(length):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
-                preds, hidden, cell = self.D(tokens_enc[-1], hidden, cell)
+                preds, hidden, cell = self.D(tokens[-1], hidden, cell)
 
             # Regularize the prediction with the temperature
             preds /= temperature
@@ -143,10 +143,10 @@ class Seq2Seq(Model):
             sampled_token = distributions.Categorical(logits=preds).sample()
 
             # Concatenate the sampled token with the input tokens
-            tokens_enc = torch.cat((tokens_enc, sampled_token.unsqueeze(0)))
+            tokens = torch.cat((tokens, sampled_token.unsqueeze(0)))
 
         # Decodes the tokens into text
-        sampled_text = [field.vocab.itos[t] for t in tokens_enc]
+        sampled_text = [field.vocab.itos[t] for t in tokens]
 
         return sampled_text
 
@@ -185,20 +185,20 @@ class Seq2Seq(Model):
             hidden, cell = self.E(tokens)
 
         # Creating a tensor with `<sos>` token from target vocabulary
-        tokens_enc = torch.LongTensor([trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0).to(self.device)
+        tokens = torch.LongTensor([trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0).to(self.device)
 
         # For every possible token in maximum length
         for i in range(max_length):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
-                preds, hidden, cell = self.D(tokens_enc[-1], hidden, cell)
+                preds, hidden, cell = self.D(tokens[-1], hidden, cell)
 
             # Samples a token using argmax
             sampled_token = preds.argmax(1)
 
             # Concatenate the sampled token with the input tokens
-            tokens_enc = torch.cat((tokens_enc, sampled_token.unsqueeze(0)))
+            tokens = torch.cat((tokens, sampled_token.unsqueeze(0)))
 
             # Check if has reached the end of string
             if sampled_token == trg_field.vocab.stoi[trg_field.eos_token]:
@@ -206,7 +206,7 @@ class Seq2Seq(Model):
                 break
 
         # Decodes the tokens into text
-        translated_text = [trg_field.vocab.itos[t] for t in tokens_enc]
+        translated_text = [trg_field.vocab.itos[t] for t in tokens]
 
         return translated_text[1:]
 

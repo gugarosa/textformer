@@ -70,8 +70,8 @@ class BiGRUEncoder(Encoder):
         # Calculates the RNN outputs
         outputs, hidden = self.rnn(embedded)
 
-        # Initial Decoder hidden layer is the final hidden state of the Encoder forward and backward RNNs
-        # Also, they are fed through a Linear layer
+        # Calculates the final hidden state of the encoder forward and backward RNNs
+        # Also, they are fed through a linear layer
         hidden = torch.tanh(self.fc(torch.cat((hidden[-2, :, :], hidden[-1, :, :]), dim=1)))
 
         return outputs, hidden

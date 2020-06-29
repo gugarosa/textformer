@@ -57,13 +57,13 @@ class AttBiGRUDecoder(Decoder):
         logger.debug(
             f'Size: ({self.n_output}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.rnn} | Attention: {self.a} | Output: {self.fc}.')
 
-    def forward(self, x, h, y):
+    def forward(self, x, o, h):
         """Performs a forward pass over the architecture.
 
         Args:
-            x (torch.Tensor): Tensor containing the data.
+            x (torch.Tensor): Tensor containing the input data.
+            o (torch.Tensor): Tensor containing the encoded outputs.
             h (torch.Tensor): Tensor containing the hidden states.
-            y (torch.Tensor): Tensor containing the encoder outputs.
 
         Returns:
             The prediction and hidden state.
@@ -74,10 +74,10 @@ class AttBiGRUDecoder(Decoder):
         embedded = self.dropout(self.embedding(x.unsqueeze(0)))
 
         # Calculates the attention
-        attention = self.a(h, y).unsqueeze(1)
+        attention = self.a(o, h).unsqueeze(1)
 
         # Permutes the encoder outputs
-        encoder_outputs = y.permute(1, 0, 2)
+        encoder_outputs = o.permute(1, 0, 2)
 
         # Calculates the weights from the attention-based layer
         weighted = torch.bmm(attention, encoder_outputs).permute(1, 0, 2)
