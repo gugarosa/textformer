@@ -19,7 +19,8 @@ class Transformer(Model):
     """
 
     def __init__(self, n_input=128, n_output=128, n_hidden=128, n_forward=256, n_layers=1, n_heads=3, 
-                 dropout=0.1, max_length=100, ignore_token=None, init_weights=None, device='cpu'):
+                 dropout=0.1, max_length=100, source_pad_index=None, target_pad_index=None,
+                 init_weights=None, device='cpu'):
         """Initialization method.
 
         Args:
@@ -31,7 +32,8 @@ class Transformer(Model):
             n_heads (int): Number of attention heads.
             dropout (float): Amount of dropout to be applied.
             max_length (int): Maximum length of positional embeddings.
-            ignore_token (int): The index of a token to be ignored by the loss function.
+            source_pad_index (int): The index of source vocabulary padding token.
+            target_pad_index (int): The index of target vocabulary padding token.
             init_weights (tuple): Tuple holding the minimum and maximum values for weights initialization.
             device (str): Device that model should be trained on, e.g., `cpu` or `cuda`.
 
@@ -46,9 +48,39 @@ class Transformer(Model):
         D = ConvDecoder(n_output, n_hidden, n_forward, n_layers, n_heads, dropout)
 
         # Overrides its parent class with any custom arguments if needed
-        super(Transformer, self).__init__(E, D, ignore_token, init_weights, device)
+        super(Transformer, self).__init__(E, D, None, init_weights, device)
+
+        # Source vocabulary padding token
+        self.source_pad_index = source_pad_index
+
+        # Target vocabulary padding token
+        self.target_pad_index = target_pad_index
 
         logger.info('Class overrided.')
+
+    def create_source_mask(self, x):
+        """
+        """
+        
+        #
+        x_mask = (x != self.source_pad_idx).unsqueeze(1).unsqueeze(2)
+
+        return x_mask
+
+    def create_target_mask(self, y):
+        """
+        """
+        
+        #
+        y_pad_mask = (y != self.y_pad_idx).unsqueeze(1).unsqueeze(2)
+        
+        #
+        y_sub_mask = torch.tril(torch.ones((y.shape[1], y.shape[1]))).bool()
+        
+        #            
+        y_mask = y_pad_mask & y_sub_mask
+        
+        return y_mask
 
     def forward(self, x, y, teacher_forcing_ratio=0.0):
         """Performs a forward pass over the architecture.

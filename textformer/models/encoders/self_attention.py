@@ -10,7 +10,7 @@ logger = l.get_logger(__name__)
 
 
 class SelfAttentionLayer(nn.Module):
-    """A SelfAttentionLayer is used to supply the self-attention layer to the encoding part of the Transformer architecture.
+    """A SelfAttentionLayer is used to supply a self-attention layer to the encoding part of the Transformer architecture.
 
     """
 
@@ -25,39 +25,44 @@ class SelfAttentionLayer(nn.Module):
 
         """
 
-        #
-        self.self_attn_layer_norm = nn.LayerNorm(n_hidden)
+        # Normalization layers
+        self.norm1 = nn.LayerNorm(n_hidden)
+        self.norm2 = nn.LayerNorm(n_hidden)
 
-        #
-        self.ff_layer_norm = nn.LayerNorm(n_hidden)
+        # Multi-head attention layer
+        self.att = MultiHeadAttention(n_hidden, n_heads, dropout)
 
-        #
-        self.self_attention = MultiHeadAttention(n_hidden, n_heads, dropout)
+        # Position-wide feed forward layer
+        self.pw = PositionWideForward(n_hidden, n_forward, dropout)
 
-        #
-        self.positionwise_feedforward = PositionWideForward(
-            n_hidden, n_forward, dropout)
-
-        #
+        # Dropout layer
         self.drop = nn.Dropout(dropout)
 
-    def forward(self, src, src_mask):
-        """
+    def forward(self, x, x_mask):
+        """Performs a forward pass over the architecture.
+
+        Args:
+            x (torch.Tensor): Tensor containing the data.
+            x_mask (torch.Tensor): Tensor containing the masked data.
+
+        Returns:
+            The output values.
+
         """
 
         # Performs the self-attention mechanism
-        _src, _ = self.self_attention(src, src, src, src_mask)
+        attention, _ = self.att(x, x, x, x_mask)
 
         # Performs the dropout with residual connection and layer normalization
-        src = self.self_attn_layer_norm(src + self.drop(_src))
+        norm_attention = self.norm1(src + self.drop(attention))
 
         # Performs the position-wise forwarding
-        _src = self.positionwise_feedforward(src)
+        pos_wide = self.pw(norm_attention)
 
         # Performs the dropout with residual connection and layer normalization
-        src = self.ff_layer_norm(src + self.drop(_src))
+        residual_attention = self.norm2(norm_attention + self.drop(pos_wide))
 
-        return src
+        return residual_attention
 
 
 class SelfAttentionEncoder(Encoder):
@@ -128,4 +133,19 @@ class SelfAttentionEncoder(Encoder):
 
         """
 
-        pass
+        # Creates the positions tensor
+        pos = torch.arange(0, x.shape[1]).unsqueeze(0).repeat(x.shape[0], 1)
+
+        # Calculates the embedded outputs
+        token_embedded = self.embedding(x)
+        pos_embedded = self.pos_embedding(pos)
+
+        # Combines the embeddings
+        embedded = self.dropout(token_embedded * self.scale + pos_embedded)
+
+        # For every self-attention layer
+        for layer in self.encoders:
+            # Pass down through layer
+            embedded = layer(embedded, x_mask)
+
+        return embedded
