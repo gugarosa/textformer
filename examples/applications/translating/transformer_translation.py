@@ -10,8 +10,8 @@ device = 'cpu'
 file_path = 'data/translation/europarl'
 
 # Defines datatypes for further tensor conversion
-source = Field(init_token='<sos>', eos_token='<eos>', lower=True)
-target = Field(init_token='<sos>', eos_token='<eos>', lower=True)
+source = Field(init_token='<sos>', eos_token='<eos>', lower=True, batch_first=True)
+target = Field(init_token='<sos>', eos_token='<eos>', lower=True, batch_first=True)
 
 # Creates the TranslationDataset
 train_dataset, val_dataset, test_dataset = TranslationDataset.splits(

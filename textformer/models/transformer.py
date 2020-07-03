@@ -4,8 +4,8 @@ from torchtext.data.metrics import bleu_score
 
 import textformer.utils.logging as l
 from textformer.core.model import Model
-from textformer.models.decoders import ConvDecoder
-from textformer.models.encoders import MultiHeadEncoder
+from textformer.models.decoders import SelfAttentionDecoder
+from textformer.models.encoders import SelfAttentionEncoder
 
 logger = l.get_logger(__name__)
 
@@ -42,10 +42,10 @@ class Transformer(Model):
         logger.info('Overriding class: Model -> Transformer.')
 
         # Creating the encoder network
-        E = MultiHeadEncoder(n_input, n_hidden, n_forward, n_layers, n_heads, dropout, max_length)
+        E = SelfAttentionEncoder(n_input, n_hidden, n_forward, n_layers, n_heads, dropout, max_length)
 
         # Creating the decoder network
-        D = ConvDecoder(n_output, n_hidden, n_forward, n_layers, n_heads, dropout)
+        D = SelfAttentionDecoder(n_output, n_hidden, n_forward, n_layers, n_heads, dropout, max_length)
 
         # Overrides its parent class with any custom arguments if needed
         super(Transformer, self).__init__(E, D, None, init_weights, device)
@@ -63,7 +63,7 @@ class Transformer(Model):
         """
         
         #
-        x_mask = (x != self.source_pad_idx).unsqueeze(1).unsqueeze(2)
+        x_mask = (x != self.source_pad_index).unsqueeze(1).unsqueeze(2)
 
         return x_mask
 
@@ -72,7 +72,7 @@ class Transformer(Model):
         """
         
         #
-        y_pad_mask = (y != self.y_pad_idx).unsqueeze(1).unsqueeze(2)
+        y_pad_mask = (y != self.target_pad_index).unsqueeze(1).unsqueeze(2)
         
         #
         y_sub_mask = torch.tril(torch.ones((y.shape[1], y.shape[1]))).bool()

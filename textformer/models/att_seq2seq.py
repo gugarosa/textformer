@@ -4,7 +4,7 @@ from torchtext.data.metrics import bleu_score
 
 import textformer.utils.logging as l
 from textformer.core.model import Model
-from textformer.models.decoders import AttBiGRUDecoder
+from textformer.models.decoders import AttentionBiGRUDecoder
 from textformer.models.encoders import BiGRUEncoder
 
 logger = l.get_logger(__name__)
@@ -42,7 +42,7 @@ class AttSeq2Seq(Model):
         E = BiGRUEncoder(n_input, n_hidden_enc, n_hidden_dec, n_embedding, dropout)
 
         # Creating the decoder network
-        D = AttBiGRUDecoder(n_output, n_hidden_enc, n_hidden_dec, n_embedding, dropout)
+        D = AttentionBiGRUDecoder(n_output, n_hidden_enc, n_hidden_dec, n_embedding, dropout)
 
         # Overrides its parent class with any custom arguments if needed
         super(AttSeq2Seq, self).__init__(E, D, ignore_token, init_weights, device)

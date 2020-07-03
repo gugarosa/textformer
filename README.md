@@ -47,7 +47,7 @@ Textformer is based on the following structure, and you should pay attention to 
         - translation
     - models
         - decoders
-            - att_bi_gru
+            - attention_bi_gru
             - conv
             - gru
             - lstm

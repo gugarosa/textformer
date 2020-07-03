@@ -1,10 +1,11 @@
 import math
 
-import textformer.utils.logging as l
 import torch
+from torch import nn
+
+import textformer.utils.logging as l
 from textformer.core import Encoder
 from textformer.models.layers import MultiHeadAttention, PositionWideForward
-from torch import nn
 
 logger = l.get_logger(__name__)
 
@@ -24,6 +25,9 @@ class SelfAttentionLayer(nn.Module):
             dropout (float): Dropout probability.
 
         """
+
+        # Overriding its parent class
+        super(SelfAttentionLayer, self).__init__()
 
         # Normalization layers
         self.norm1 = nn.LayerNorm(n_hidden)
@@ -51,16 +55,16 @@ class SelfAttentionLayer(nn.Module):
         """
 
         # Performs the self-attention mechanism
-        attention, _ = self.att(x, x, x, x_mask)
+        _x, _ = self.att(x, x, x, x_mask)
 
         # Performs the dropout with residual connection and layer normalization
-        norm_attention = self.norm1(src + self.drop(attention))
+        x_norm = self.norm1(x + self.drop(_x))
 
         # Performs the position-wise forwarding
-        pos_wide = self.pw(norm_attention)
+        pos_wide = self.pw(x_norm)
 
         # Performs the dropout with residual connection and layer normalization
-        residual_attention = self.norm2(norm_attention + self.drop(pos_wide))
+        residual_attention = self.norm2(x_norm + self.drop(pos_wide))
 
         return residual_attention
 
@@ -116,7 +120,7 @@ class SelfAttentionEncoder(Encoder):
         self.pos_embedding = nn.Embedding(max_length, n_hidden)
 
         # Encoding layers
-        self.encoders = nn.ModuleList[SelfAttentionLayer(n_hidden, n_heads, n_forward, dropout) for _ in range(n_layers)]
+        self.encoders = nn.ModuleList([SelfAttentionLayer(n_hidden, n_heads, n_forward, dropout) for _ in range(n_layers)])
 
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
