@@ -36,7 +36,7 @@ transformer = Transformer(n_input=len(source.vocab), n_output=len(target.vocab),
                           target_pad_index=target_pad_index, init_weights=None, device=device)
 
 # Training the model
-transformer.fit(train_iterator, val_iterator, epochs=10)
+transformer.fit(train_iterator, val_iterator, epochs=1)
 
 # Evaluating the model
 transformer.evaluate(test_iterator)
