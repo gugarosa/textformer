@@ -150,16 +150,16 @@ class Transformer(Model):
         # Numericalizing the tokens
         tokens = field.numericalize([tokens]).to(self.device)
 
-        # Creating encoder mask
-        enc_mask = self.create_source_mask(tokens)
-
-        # Inhibits the gradient from updating the parameters
-        with torch.no_grad():
-            # Performs the initial encoding
-            output = self.E(tokens, enc_mask)
-
         # For every possible length
         for i in range(length):
+            # Creating encoder mask
+            enc_mask = self.create_source_mask(tokens)
+            
+            # Inhibits the gradient from updating the parameters
+            with torch.no_grad():
+                # Performs the initial encoding
+                output = self.E(tokens, enc_mask)
+
             # Creating decoder mask
             dec_mask = self.create_target_mask(tokens)
 

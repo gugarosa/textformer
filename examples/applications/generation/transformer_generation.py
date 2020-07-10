@@ -34,6 +34,6 @@ transformer = Transformer(n_input=len(source.vocab), n_output=len(source.vocab),
 transformer.fit(train_iterator, epochs=10)
 
 # Generating artificial text
-text = transformer.generate_text('Mr. Dursley', source, length=100, temperature=0.5)
+text = transformer.generate_text('Mr. Dursley', source, length=10, temperature=0.9)
 
 print(' '.join(text))

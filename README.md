@@ -47,17 +47,21 @@ Textformer is based on the following structure, and you should pay attention to 
         - translation
     - models
         - decoders
-            - attention_bi_gru
+            - bi_gru
             - conv
             - gru
             - lstm
+            - self_attention
         - encoders
             - bi_gru
             - conv
             - gru
             - lstm
+            - self_attention
         - layers
             - attention
+            - multi_head_attention
+            - position_wide_forward
             - residual_attention
         - att_seq2seq
         - conv_seq2seq

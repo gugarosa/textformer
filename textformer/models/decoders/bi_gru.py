@@ -8,8 +8,8 @@ from textformer.models.layers import Attention
 logger = l.get_logger(__name__)
 
 
-class AttentionBiGRUDecoder(Decoder):
-    """An AttentionBiGRUDecoder class is used to supply the decoding part of the Attention-based Seq2Seq architecture.
+class BiGRUDecoder(Decoder):
+    """A BiGRUDecoder class is used to supply the decoding part of the Attention-based Seq2Seq architecture.
 
     """
 
@@ -25,10 +25,10 @@ class AttentionBiGRUDecoder(Decoder):
 
         """
 
-        logger.info('Overriding class: Decoder -> AttentionBiGRUDecoder.')
+        logger.info('Overriding class: Decoder -> BiGRUDecoder.')
 
         # Overriding its parent class
-        super(AttentionBiGRUDecoder, self).__init__()
+        super(BiGRUDecoder, self).__init__()
 
         # Number of output units
         self.n_output = n_output
