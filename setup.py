@@ -4,7 +4,7 @@ with open('README.md', 'r') as f:
     long_description = f.read()
 
 setup(name='textformer',
-      version='1.0.0',
+      version='1.0.1',
       description='Transformer-based Text Operators',
       long_description=long_description,
       long_description_content_type='text/markdown',
