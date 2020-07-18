@@ -1,3 +1,6 @@
+"""Sequence-To-Sequence.
+"""
+
 import torch
 from torch import distributions
 from torchtext.data.metrics import bleu_score
@@ -64,7 +67,8 @@ class Seq2Seq(Model):
         """
 
         # Creates an empty tensor to hold the predictions
-        preds = torch.zeros(y.shape[0], y.shape[1], self.D.n_output, device=self.device)
+        preds = torch.zeros(y.shape[0], y.shape[1],
+                            self.D.n_output, device=self.device)
 
         # Performs the initial encoding
         hidden, cell = self.E(x)
@@ -110,7 +114,7 @@ class Seq2Seq(Model):
 
         """
 
-        logger.debug(f'Generating text with length: {length} ...')
+        logger.debug('Generating text with length: %d ...', length)
 
         # Setting the evalution flag
         self.eval()
@@ -130,7 +134,7 @@ class Seq2Seq(Model):
         tokens = tokens.squeeze(0)
 
         # For every possible length
-        for i in range(length):
+        for _ in range(length):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
@@ -185,10 +189,11 @@ class Seq2Seq(Model):
             hidden, cell = self.E(tokens)
 
         # Creating a tensor with `<sos>` token from target vocabulary
-        tokens = torch.LongTensor([trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0).to(self.device)
+        tokens = torch.LongTensor(
+            [trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0).to(self.device)
 
         # For every possible token in maximum length
-        for i in range(max_length):
+        for _ in range(max_length):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
@@ -228,7 +233,7 @@ class Seq2Seq(Model):
 
         """
 
-        logger.info(f'Calculating BLEU with {n_grams}-grams ...')
+        logger.info('Calculating BLEU with %d-grams ...', n_grams)
 
         # Defines a list for holding the targets and predictions
         targets, preds = [], []
@@ -236,7 +241,8 @@ class Seq2Seq(Model):
         # For every example in the dataset
         for data in dataset:
             # Calculates the prediction, i.e., translated text
-            pred = self.translate_text(data.text, src_field, trg_field, max_length)
+            pred = self.translate_text(
+                data.text, src_field, trg_field, max_length)
 
             # Appends the prediction without the `<eos>` token
             preds.append(pred[:-1])
@@ -247,6 +253,6 @@ class Seq2Seq(Model):
         # Calculates the BLEU score
         bleu = bleu_score(preds, targets, max_n=n_grams)
 
-        logger.info(f'BLEU: {bleu}')
+        logger.info('BLEU: %f', bleu)
 
         return bleu

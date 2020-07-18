@@ -1,3 +1,6 @@
+"""Self-Attention Transformer.
+"""
+
 import torch
 from torch import distributions
 from torchtext.data.metrics import bleu_score
@@ -18,7 +21,7 @@ class Transformer(Model):
 
     """
 
-    def __init__(self, n_input=128, n_output=128, n_hidden=128, n_forward=256, n_layers=1, n_heads=3, 
+    def __init__(self, n_input=128, n_output=128, n_hidden=128, n_forward=256, n_layers=1, n_heads=3,
                  dropout=0.1, max_length=100, source_pad_index=None, target_pad_index=None,
                  init_weights=None, device='cpu'):
         """Initialization method.
@@ -42,10 +45,12 @@ class Transformer(Model):
         logger.info('Overriding class: Model -> Transformer.')
 
         # Creating the encoder network
-        E = SelfAttentionEncoder(n_input, n_hidden, n_forward, n_layers, n_heads, dropout, max_length)
+        E = SelfAttentionEncoder(
+            n_input, n_hidden, n_forward, n_layers, n_heads, dropout, max_length)
 
         # Creating the decoder network
-        D = SelfAttentionDecoder(n_output, n_hidden, n_forward, n_layers, n_heads, dropout, max_length)
+        D = SelfAttentionDecoder(
+            n_output, n_hidden, n_forward, n_layers, n_heads, dropout, max_length)
 
         # Overrides its parent class with any custom arguments if needed
         super(Transformer, self).__init__(E, D, None, init_weights, device)
@@ -68,7 +73,7 @@ class Transformer(Model):
             Mask over inputs tensor.
 
         """
-        
+
         # Creates the encoding mask
         x_mask = (x != self.source_pad_index).unsqueeze(1).unsqueeze(2)
 
@@ -82,18 +87,18 @@ class Transformer(Model):
 
         Returns:
             Mask over targets tensor.
-            
+
         """
-        
+
         # Creates the padded target mask
         y_pad_mask = (y != self.target_pad_index).unsqueeze(1).unsqueeze(2)
-        
+
         # Creates the subtraction target mask
         y_sub_mask = torch.tril(torch.ones((y.shape[1], y.shape[1]))).bool()
-        
-        # Creates the decoding mask        
+
+        # Creates the decoding mask
         y_mask = y_pad_mask & y_sub_mask
-        
+
         return y_mask
 
     def forward(self, x, y, teacher_forcing_ratio=0.0):
@@ -139,7 +144,7 @@ class Transformer(Model):
 
         """
 
-        logger.debug(f'Generating text with length: {length} ...')
+        logger.debug('Generating text with length: %d ...', length)
 
         # Setting the evalution flag
         self.eval()
@@ -151,10 +156,10 @@ class Transformer(Model):
         tokens = field.numericalize([tokens]).to(self.device)
 
         # For every possible length
-        for i in range(length):
+        for _ in range(length):
             # Creating encoder mask
             enc_mask = self.create_source_mask(tokens)
-            
+
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Performs the initial encoding
@@ -172,7 +177,8 @@ class Transformer(Model):
             preds /= temperature
 
             # Samples a token from a categorical distribution based on the predictions
-            sampled_token = distributions.Categorical(logits=preds[:, -1].unsqueeze(0)).sample()
+            sampled_token = distributions.Categorical(
+                logits=preds[:, -1].unsqueeze(0)).sample()
 
             # Concatenate the sampled token with the input tokens
             tokens = torch.cat((tokens, sampled_token), axis=1)
@@ -220,10 +226,11 @@ class Transformer(Model):
             output = self.E(tokens, enc_mask)
 
         # Creating a tensor with `<sos>` token from target vocabulary
-        tokens = torch.LongTensor([trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0).to(self.device)
+        tokens = torch.LongTensor(
+            [trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0).to(self.device)
 
         # For every possible token in maximum length
-        for i in range(max_length):
+        for _ in range(max_length):
             # Creating decoder mask
             dec_mask = self.create_target_mask(tokens)
 
@@ -233,7 +240,7 @@ class Transformer(Model):
                 preds, atts = self.D(tokens, dec_mask, output, enc_mask)
 
             # Samples a token using argmax
-            sampled_token = preds.argmax(2)[:,-1]
+            sampled_token = preds.argmax(2)[:, -1]
 
             # Concatenate the sampled token with the input tokens
             tokens = torch.cat((tokens, sampled_token.unsqueeze(0)), axis=1)
@@ -266,7 +273,7 @@ class Transformer(Model):
 
         """
 
-        logger.info(f'Calculating BLEU with {n_grams}-grams ...')
+        logger.info('Calculating BLEU with %d-grams ...', n_grams)
 
         # Defines a list for holding the targets and predictions
         targets, preds = [], []
@@ -274,7 +281,8 @@ class Transformer(Model):
         # For every example in the dataset
         for data in dataset:
             # Calculates the prediction, i.e., translated text
-            pred, _ = self.translate_text(data.text, src_field, trg_field, max_length)
+            pred, _ = self.translate_text(
+                data.text, src_field, trg_field, max_length)
 
             # Appends the prediction without the `<eos>` token
             preds.append(pred[:-1])
@@ -285,6 +293,6 @@ class Transformer(Model):
         # Calculates the BLEU score
         bleu = bleu_score(preds, targets, max_n=n_grams)
 
-        logger.info(f'BLEU: {bleu}')
+        logger.info('BLEU: %f', bleu)
 
         return bleu

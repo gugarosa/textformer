@@ -1,3 +1,6 @@
+"""Gated Recurrent Unit encoder.
+"""
+
 from torch import nn
 
 import textformer.utils.logging as l
@@ -45,8 +48,8 @@ class GRUEncoder(Encoder):
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
 
-        logger.debug(
-            f'Size: ({self.n_input}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.rnn}.')
+        logger.debug('Size: (%d, %d) | Embeddings: %d | Core: %s.',
+                     self.n_input, self.n_hidden, self.n_embedding, self.rnn)
 
     def forward(self, x):
         """Performs a forward pass over the architecture.
@@ -63,6 +66,6 @@ class GRUEncoder(Encoder):
         embedded = self.dropout(self.embedding(x))
 
         # Calculates the RNN outputs
-        outputs, hidden = self.rnn(embedded)
+        _, hidden = self.rnn(embedded)
 
         return hidden

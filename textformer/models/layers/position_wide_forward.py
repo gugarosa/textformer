@@ -1,3 +1,6 @@
+"""Position-Wide Feed-Forward layer.
+"""
+
 import torch.nn as nn
 import torch.nn.functional as F
 

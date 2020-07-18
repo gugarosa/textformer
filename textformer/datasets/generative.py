@@ -1,3 +1,6 @@
+"""Text generation dataset.
+"""
+
 import io
 
 import torchtext.data as data
@@ -47,7 +50,7 @@ class GenerativeDataset(data.Dataset):
 
         """
 
-        logger.debug(f'Loading {file_path} ...')
+        logger.debug('Loading %s ...', file_path)
 
         # Tries to invoke the following functions
         try:
@@ -61,7 +64,7 @@ class GenerativeDataset(data.Dataset):
                     # Pre-process the line and appends to the list
                     text += fields[0][1].preprocess(line)
 
-                logger.debug(f'Data loaded.')
+                logger.debug('Data loaded.')
 
             # Creates a list of examples based on loaded text and pre-defined field
             example = [data.Example.fromlist([text], fields)]

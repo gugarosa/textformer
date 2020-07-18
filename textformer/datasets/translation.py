@@ -1,3 +1,6 @@
+"""Text translation dataset.
+"""
+
 import io
 import os
 
@@ -54,7 +57,7 @@ class TranslationDataset(data.Dataset):
 
         """
 
-        logger.debug(f'Loading {source_path} and {target_path} ...')
+        logger.debug('Loading %s and %s ...', source_path, target_path)
 
         # Tries to invoke the following functions
         try:
@@ -74,14 +77,14 @@ class TranslationDataset(data.Dataset):
                         examples.append(data.Example.fromlist(
                             [source_line, target_line], fields))
 
-                logger.debug(f'Data loaded.')
+                logger.debug('Data loaded.')
 
             return examples
 
         # If file can not be loaded
         except FileNotFoundError:
             # Creates an error
-            e = f'File not found: {file_path}.'
+            e = f'Files not found: {source_path} or {target_path}.'
 
             # Logs the error
             logger.error(e)

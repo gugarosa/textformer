@@ -1,8 +1,10 @@
+"""Multi-Head Attention layer.
+"""
+
 import math
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 import textformer.utils.constants as c
 
@@ -77,9 +79,9 @@ class MultiHeadAttention(nn.Module):
         V = self.v(value)
 
         # Reshapes Q, K and V
-        Q = Q.view(batch_size, -1, self.n_heads, self.head_size).permute(0, 2, 1, 3)
-        K = K.view(batch_size, -1, self.n_heads, self.head_size).permute(0, 2, 1, 3)
-        V = V.view(batch_size, -1, self.n_heads, self.head_size).permute(0, 2, 1, 3)
+        Q = Q.reshape(batch_size, -1, self.n_heads, self.head_size).permute(0, 2, 1, 3)
+        K = K.reshape(batch_size, -1, self.n_heads, self.head_size).permute(0, 2, 1, 3)
+        V = V.reshape(batch_size, -1, self.n_heads, self.head_size).permute(0, 2, 1, 3)
 
         # Calculates the energy
         energy = torch.matmul(Q, K.permute(0, 1, 3, 2)) / self.scale
@@ -96,7 +98,7 @@ class MultiHeadAttention(nn.Module):
         x = (torch.matmul(self.drop(attention), V)).permute(0, 2, 1, 3)
 
         # Reshapes back to hidden units
-        x = x.view(batch_size, -1, self.n_hidden)
+        x = x.reshape(batch_size, -1, self.n_hidden)
 
         # Passes down through output layer
         x = self.out(x)

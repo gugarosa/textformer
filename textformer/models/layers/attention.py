@@ -1,3 +1,6 @@
+"""Attention layer.
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -49,7 +52,8 @@ class Attention(nn.Module):
         encoder_outputs = o.permute(1, 0, 2)
 
         # Calculating the energy between decoder hidden state and encoder hidden states
-        energy = torch.tanh(self.e(torch.cat((hidden, encoder_outputs), dim=2)))
+        energy = torch.tanh(
+            self.e(torch.cat((hidden, encoder_outputs), dim=2)))
 
         # Calculating the attention
         attention = self.v(energy).squeeze(2)

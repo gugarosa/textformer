@@ -1,3 +1,6 @@
+"""Convolutional encoder.
+"""
+
 import math
 
 import torch
@@ -51,7 +54,7 @@ class ConvEncoder(Encoder):
         if kernel_size % 2 == 0:
             # If yes, adds one to make it odd
             self.kernel_size = kernel_size + 1
-        
+
         # If it is odd
         else:
             # Uses the inputted kernel size
@@ -81,7 +84,7 @@ class ConvEncoder(Encoder):
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
 
-        logger.debug(f'Size: ({self.n_input}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.conv}.')
+        logger.debug('Size: (%d, %d) | Embeddings: %d | Core: %s.', self.n_input, self.n_hidden, self.n_embedding, self.conv)
 
     def forward(self, x):
         """Performs a forward pass over the architecture.

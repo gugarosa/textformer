@@ -1,3 +1,6 @@
+"""Convolutional Sequence-To-Sequence.
+"""
+
 import torch
 from torch import distributions
 from torchtext.data.metrics import bleu_score
@@ -19,7 +22,7 @@ class ConvSeq2Seq(Model):
 
     """
 
-    def __init__(self, n_input=128, n_output=128, n_hidden=128, n_embedding=128, n_layers=1, kernel_size=3, 
+    def __init__(self, n_input=128, n_output=128, n_hidden=128, n_embedding=128, n_layers=1, kernel_size=3,
                  dropout=0.5, scale=0.5, max_length=100, ignore_token=None, init_weights=None, device='cpu'):
         """Initialization method.
 
@@ -42,13 +45,16 @@ class ConvSeq2Seq(Model):
         logger.info('Overriding class: Model -> ConvSeq2Seq.')
 
         # Creating the encoder network
-        E = ConvEncoder(n_input, n_hidden, n_embedding, n_layers, kernel_size, dropout, scale, max_length)
+        E = ConvEncoder(n_input, n_hidden, n_embedding, n_layers,
+                        kernel_size, dropout, scale, max_length)
 
         # Creating the decoder network
-        D = ConvDecoder(n_output, n_hidden, n_embedding, n_layers, kernel_size, dropout, scale, max_length, ignore_token)
+        D = ConvDecoder(n_output, n_hidden, n_embedding, n_layers,
+                        kernel_size, dropout, scale, max_length, ignore_token)
 
         # Overrides its parent class with any custom arguments if needed
-        super(ConvSeq2Seq, self).__init__(E, D, ignore_token, init_weights, device)
+        super(ConvSeq2Seq, self).__init__(
+            E, D, ignore_token, init_weights, device)
 
         logger.info('Class overrided.')
 
@@ -89,7 +95,7 @@ class ConvSeq2Seq(Model):
 
         """
 
-        logger.debug(f'Generating text with length: {length} ...')
+        logger.debug('Generating text with length: %d ...', length)
 
         # Setting the evalution flag
         self.eval()
@@ -106,11 +112,11 @@ class ConvSeq2Seq(Model):
             conv, output = self.E(tokens)
 
         # For every possible length
-        for i in range(length):
+        for _ in range(length):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
-                preds, _ = self.D(tokens[:,-1].unsqueeze(0), conv, output)
+                preds, _ = self.D(tokens[:, -1].unsqueeze(0), conv, output)
 
             # Regularize the prediction with the temperature
             preds /= temperature
@@ -161,17 +167,18 @@ class ConvSeq2Seq(Model):
             conv, output = self.E(tokens)
 
         # Creating a tensor with `<sos>` token from target vocabulary
-        tokens = torch.LongTensor([trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0).to(self.device)
+        tokens = torch.LongTensor(
+            [trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0).to(self.device)
 
         # For every possible token in maximum length
-        for i in range(max_length):
+        for _ in range(max_length):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
                 preds, atts = self.D(tokens, conv, output)
 
             # Samples a token using argmax
-            sampled_token = preds.argmax(2)[:,-1]
+            sampled_token = preds.argmax(2)[:, -1]
 
             # Concatenate the sampled token with the input tokens
             tokens = torch.cat((tokens, sampled_token.unsqueeze(0)), axis=1)
@@ -204,7 +211,7 @@ class ConvSeq2Seq(Model):
 
         """
 
-        logger.info(f'Calculating BLEU with {n_grams}-grams ...')
+        logger.info('Calculating BLEU with %d-grams ...', n_grams)
 
         # Defines a list for holding the targets and predictions
         targets, preds = [], []
@@ -212,7 +219,8 @@ class ConvSeq2Seq(Model):
         # For every example in the dataset
         for data in dataset:
             # Calculates the prediction, i.e., translated text
-            pred, _ = self.translate_text(data.text, src_field, trg_field, max_length)
+            pred, _ = self.translate_text(
+                data.text, src_field, trg_field, max_length)
 
             # Appends the prediction without the `<eos>` token
             preds.append(pred[:-1])
@@ -223,6 +231,6 @@ class ConvSeq2Seq(Model):
         # Calculates the BLEU score
         bleu = bleu_score(preds, targets, max_n=n_grams)
 
-        logger.info(f'BLEU: {bleu}')
+        logger.info('BLEU: %f', bleu)
 
         return bleu

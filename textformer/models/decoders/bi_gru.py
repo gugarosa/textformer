@@ -1,3 +1,6 @@
+"""Bi-directional Gated Recurrent Unit decoder.
+"""
+
 import torch
 from torch import nn
 
@@ -54,8 +57,8 @@ class BiGRUDecoder(Decoder):
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
 
-        logger.debug(
-            f'Size: ({self.n_output}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.rnn} | Attention: {self.a} | Output: {self.fc}.')
+        logger.debug('Size: (%d, %d) | Embeddings: %d | Core: %s | Attention: %s | Output: %d.',
+                     self.n_output, self.n_hidden, self.n_embedding, self.rnn, self.a, self.fc)
 
     def forward(self, x, o, h):
         """Performs a forward pass over the architecture.

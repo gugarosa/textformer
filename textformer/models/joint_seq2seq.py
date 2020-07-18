@@ -1,3 +1,6 @@
+"""Jointly-Aligned Sequence-To-Sequence.
+"""
+
 import torch
 from torch import distributions
 from torchtext.data.metrics import bleu_score
@@ -109,7 +112,7 @@ class JointSeq2Seq(Model):
 
         """
 
-        logger.debug(f'Generating text with length: {length} ...')
+        logger.debug('Generating text with length: %d ...', length)
 
         # Setting the evalution flag
         self.eval()
@@ -129,7 +132,7 @@ class JointSeq2Seq(Model):
         tokens = tokens.squeeze(0)
 
         # For every possible length
-        for i in range(length):
+        for _ in range(length):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
@@ -187,7 +190,7 @@ class JointSeq2Seq(Model):
         tokens = torch.LongTensor([trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0).to(self.device)
 
         # For every possible token in maximum length
-        for i in range(max_length):
+        for _ in range(max_length):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
                 # Decodes only the last token, i.e., last sampled token
@@ -227,7 +230,7 @@ class JointSeq2Seq(Model):
 
         """
 
-        logger.info(f'Calculating BLEU with {n_grams}-grams ...')
+        logger.info('Calculating BLEU with %d-grams ...', n_grams)
 
         # Defines a list for holding the targets and predictions
         targets, preds = [], []
@@ -246,6 +249,6 @@ class JointSeq2Seq(Model):
         # Calculates the BLEU score
         bleu = bleu_score(preds, targets, max_n=n_grams)
 
-        logger.info(f'BLEU: {bleu}')
+        logger.info('BLEU: %f', bleu)
 
         return bleu

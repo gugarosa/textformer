@@ -26,7 +26,7 @@ train_iterator = BPTTIterator(dataset, batch_size=16, bptt_len=10, device=device
 
 # Creating the Transformer model
 transformer = Transformer(n_input=len(source.vocab), n_output=len(source.vocab),
-                          n_hidden=512, n_forward=512, n_layers=1, n_heads=3,
+                          n_hidden=128, n_forward=512, n_layers=1, n_heads=8,
                           dropout=0.1, max_length=200, source_pad_index=pad_index,
                           target_pad_index=pad_index, init_weights=None, device=device)
 
@@ -34,6 +34,6 @@ transformer = Transformer(n_input=len(source.vocab), n_output=len(source.vocab),
 transformer.fit(train_iterator, epochs=10)
 
 # Generating artificial text
-text = transformer.generate_text('Mr. Dursley', source, length=10, temperature=0.9)
+text = transformer.generate_text('Mr. Dursley', source, length=100, temperature=0.5)
 
 print(' '.join(text))

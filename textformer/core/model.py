@@ -1,3 +1,6 @@
+"""Encoder, Decoder and Seq2Seq standard implementations.
+"""
+
 import math
 import time
 
@@ -123,7 +126,7 @@ class Model(torch.nn.Module):
         # Setting default tensor type to float
         torch.set_default_tensor_type(torch.FloatTensor)
 
-        logger.debug(f'Device: {self.device}.')
+        logger.debug('Device: %s.', self.device)
 
     @property
     def E(self):
@@ -307,8 +310,8 @@ class Model(torch.nn.Module):
         logger.info('Fitting model ...')
 
         # Iterate through all epochs
-        for e in range(epochs):
-            logger.info(f'Epoch {e+1}/{epochs}')
+        for epoch in range(epochs):
+            logger.info('Epoch %d/%d', epoch+1, epochs)
 
             # Calculating the time of the epoch's starting
             start = time.time()
@@ -325,7 +328,7 @@ class Model(torch.nn.Module):
                 for i, batch in enumerate(train_iterator):
                     # Calculates the training loss
                     train_loss += self.step(batch, 1)
-                     
+
                     # Updates the `tqdm` status
                     t.set_postfix(loss=train_loss / (i + 1))
                     t.update()
@@ -333,7 +336,7 @@ class Model(torch.nn.Module):
             # Gets the mean training loss accross all batches
             train_loss /= len(train_iterator)
 
-            logger.info(f'Loss: {train_loss} | PPL: {math.exp(train_loss)}')
+            logger.info('Loss: %f | PPL: %f', train_loss, math.exp(train_loss))
 
             # If there is a validation iterator
             if val_iterator:
@@ -356,7 +359,7 @@ class Model(torch.nn.Module):
                 # Gets the mean validation loss accross all batches
                 val_loss /= len(val_iterator)
 
-                logger.info(f'Val Loss: {val_loss} | Val PPL: {math.exp(val_loss)}')
+                logger.info('Val Loss: %f | Val PPL: %f', val_loss, math.exp(val_loss))
 
             # Calculating the time of the epoch's ending
             end = time.time()
@@ -383,14 +386,14 @@ class Model(torch.nn.Module):
         # Inhibits the gradient from updating the parameters
         with torch.no_grad():
             # For every batch in the iterator
-            for i, batch in enumerate(test_iterator):
+            for batch in test_iterator:
                 # Calculates the test loss
                 test_loss += self.val_step(batch)
 
         # Gets the mean validation loss accross all batches
         test_loss /= len(test_iterator)
 
-        logger.info(f'Loss: {test_loss} | PPL: {math.exp(test_loss)}')
+        logger.info('Loss: %f | PPL: %f', test_loss, math.exp(test_loss))
 
     def generate_text(self, start, field, length=10, temperature=1.0):
         """Generates text by feeding to the network the

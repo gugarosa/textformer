@@ -1,3 +1,6 @@
+"""Attention-based visualization.
+"""
+
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
@@ -14,15 +17,15 @@ def plot_attention(input_text, translated_text, attentions, color_map='hot'):
     """
 
     # Creating a figure and its axis
-    fig= plt.figure(figsize=(7, 7))
+    fig = plt.figure(figsize=(7, 7))
     ax = fig.add_subplot(111)
-    
+
     # Detaching and transferring attentions to a numpy array
     attentions = attentions.squeeze(1).detach().cpu().numpy()
-    
+
     # Defining a color map for the attentions
     ax.matshow(attentions, cmap=color_map)
-    
+
     # Appending `<sos>` and `<eos>` tokens to input text, as well as a rotation for making
     # a diagonal matrix
     ax.set_xticklabels([''] + ['<sos>'] + [t.lower() for t in input_text] + ['<eos>'], rotation=45)

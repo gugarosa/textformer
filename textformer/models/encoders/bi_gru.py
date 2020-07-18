@@ -1,3 +1,6 @@
+"""Bi-directional Gated Recurrent Unit encoder.
+"""
+
 import torch
 from torch import nn
 
@@ -50,8 +53,8 @@ class BiGRUEncoder(Encoder):
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
 
-        logger.debug(
-            f'Size: ({self.n_input}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.rnn} | Output: {self.fc}.')
+        logger.debug('Size: (%d, %d) | Embeddings: %d | Core: %s | Output: %d.',
+                     self.n_input, self.n_hidden, self.n_embedding, self.rnn, self.fc)
 
     def forward(self, x):
         """Performs a forward pass over the architecture.
@@ -72,6 +75,7 @@ class BiGRUEncoder(Encoder):
 
         # Calculates the final hidden state of the encoder forward and backward RNNs
         # Also, they are fed through a linear layer
-        hidden = torch.tanh(self.fc(torch.cat((hidden[-2, :, :], hidden[-1, :, :]), dim=1)))
+        hidden = torch.tanh(
+            self.fc(torch.cat((hidden[-2, :, :], hidden[-1, :, :]), dim=1)))
 
         return outputs, hidden

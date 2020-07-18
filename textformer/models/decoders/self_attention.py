@@ -1,3 +1,6 @@
+"""Self-Attention decoder.
+"""
+
 import math
 
 import torch
@@ -8,6 +11,7 @@ from textformer.core import Decoder
 from textformer.models.layers import MultiHeadAttention, PositionWideForward
 
 logger = l.get_logger(__name__)
+
 
 class SelfAttentionLayer(nn.Module):
     """A SelfAttentionLayer is used to supply a self-attention layer to the decoding part of the Transformer architecture.
@@ -129,14 +133,15 @@ class SelfAttentionDecoder(Decoder):
         self.pos_embedding = nn.Embedding(max_length, n_hidden)
 
         # Decoding layers
-        self.decoders = nn.ModuleList([SelfAttentionLayer(n_hidden, n_heads, n_forward, dropout) for _ in range(n_layers)])
-        
+        self.decoders = nn.ModuleList([SelfAttentionLayer(
+            n_hidden, n_forward, n_heads, dropout) for _ in range(n_layers)])
+
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
 
         # Output layer
         self.out = nn.Linear(n_hidden, n_output)
-        
+
     def forward(self, y, y_mask, x, x_mask):
         """Performs a forward pass over the architecture.
 

@@ -1,3 +1,6 @@
+"""Self-Attention encoder.
+"""
+
 import math
 
 import torch
@@ -120,7 +123,8 @@ class SelfAttentionEncoder(Encoder):
         self.pos_embedding = nn.Embedding(max_length, n_hidden)
 
         # Encoding layers
-        self.encoders = nn.ModuleList([SelfAttentionLayer(n_hidden, n_heads, n_forward, dropout) for _ in range(n_layers)])
+        self.encoders = nn.ModuleList([SelfAttentionLayer(
+            n_hidden, n_forward, n_heads, dropout) for _ in range(n_layers)])
 
         # Dropout layer
         self.dropout = nn.Dropout(dropout)

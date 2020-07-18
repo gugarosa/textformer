@@ -1,3 +1,6 @@
+"""Long Short-Term Memory decoder.
+"""
+
 from torch import nn
 
 import textformer.utils.logging as l
@@ -52,8 +55,8 @@ class LSTMDecoder(Decoder):
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
 
-        logger.debug(
-            f'Size: ({self.n_output}, {self.n_hidden}) | Embeddings: {self.n_embedding} | Core: {self.rnn} | Output: {self.fc}.')
+        logger.debug('Size: (%d, %d) | Embeddings: %d | Core: %s | Output: %d.',
+                     self.n_input, self.n_hidden, self.n_embedding, self.rnn, self.fc)
 
     def forward(self, x, h, c):
         """Performs a forward pass over the architecture.
