@@ -336,7 +336,7 @@ class Model(torch.nn.Module):
             # Gets the mean training loss accross all batches
             train_loss /= len(train_iterator)
 
-            logger.info('Loss: %f | PPL: %f', train_loss, math.exp(train_loss))
+            logger.info('Loss: %s | PPL: %s', train_loss, math.exp(train_loss))
 
             # If there is a validation iterator
             if val_iterator:
@@ -359,7 +359,7 @@ class Model(torch.nn.Module):
                 # Gets the mean validation loss accross all batches
                 val_loss /= len(val_iterator)
 
-                logger.info('Val Loss: %f | Val PPL: %f', val_loss, math.exp(val_loss))
+                logger.info('Val Loss: %s | Val PPL: %s', val_loss, math.exp(val_loss))
 
             # Calculating the time of the epoch's ending
             end = time.time()
@@ -393,7 +393,7 @@ class Model(torch.nn.Module):
         # Gets the mean validation loss accross all batches
         test_loss /= len(test_iterator)
 
-        logger.info('Loss: %f | PPL: %f', test_loss, math.exp(test_loss))
+        logger.info('Loss: %s | PPL: %s', test_loss, math.exp(test_loss))
 
     def generate_text(self, start, field, length=10, temperature=1.0):
         """Generates text by feeding to the network the

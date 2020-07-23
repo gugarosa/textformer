@@ -57,7 +57,7 @@ class BiGRUDecoder(Decoder):
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
 
-        logger.debug('Size: (%d, %d) | Embeddings: %d | Core: %s | Attention: %s | Output: %d.',
+        logger.debug('Size: (%d, %d) | Embeddings: %s | Core: %s | Attention: %s | Output: %s.',
                      self.n_output, self.n_hidden, self.n_embedding, self.rnn, self.a, self.fc)
 
     def forward(self, x, o, h):

@@ -52,7 +52,7 @@ class LSTMEncoder(Encoder):
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
 
-        logger.debug('Size: (%d, %d) | Embeddings: %d | Core: %s.',
+        logger.debug('Size: (%d, %d) | Embeddings: %s | Core: %s.',
                      self.n_input, self.n_hidden, self.n_embedding, self.rnn)
 
     def forward(self, x):

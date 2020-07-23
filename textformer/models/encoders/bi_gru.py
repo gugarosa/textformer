@@ -53,7 +53,7 @@ class BiGRUEncoder(Encoder):
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
 
-        logger.debug('Size: (%d, %d) | Embeddings: %d | Core: %s | Output: %d.',
+        logger.debug('Size: (%d, %d) | Embeddings: %s | Core: %s | Output: %s.',
                      self.n_input, self.n_hidden, self.n_embedding, self.rnn, self.fc)
 
     def forward(self, x):

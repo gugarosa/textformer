@@ -231,6 +231,6 @@ class ConvSeq2Seq(Model):
         # Calculates the BLEU score
         bleu = bleu_score(preds, targets, max_n=n_grams)
 
-        logger.info('BLEU: %f', bleu)
+        logger.info('BLEU: %s', bleu)
 
         return bleu

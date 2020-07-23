@@ -70,7 +70,6 @@ class ResidualAttention(nn.Module):
         encoded_attention = self.v(encoded_attention)
 
         # Applying residual connections
-        residual_attention = (
-            c + encoded_attention.permute(0, 2, 1)) * self.scale
+        residual_attention = (c + encoded_attention.permute(0, 2, 1)) * self.scale
 
         return attention, residual_attention

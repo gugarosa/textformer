@@ -94,7 +94,7 @@ class ConvDecoder(Decoder):
         # Output layer
         self.out = nn.Linear(n_embedding, n_output)
 
-        logger.debug('Size: (%d, %d) | Embeddings: %d | Core: %s.', self.n_output, self.n_hidden, self.n_embedding, self.conv)
+        logger.debug('Size: (%d, %d) | Embeddings: %s | Core: %s.', self.n_output, self.n_hidden, self.n_embedding, self.conv)
 
     def forward(self, y, c, o):
         """Performs a forward pass over the architecture.
