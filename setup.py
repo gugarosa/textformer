@@ -12,12 +12,12 @@ setup(name='textformer',
       author_email='gustavo.rosa@unesp.br',
       url='https://github.com/gugarosa/textformer',
       license='GPL-3.0',
-      install_requires=['coverage>=5.1',
-                        'pylint>=2.5.2',
-                        'pytest>=5.4.2',
+      install_requires=['coverage>=5.3',
+                        'pylint>=2.6.0',
+                        'pytest>=6.1.0',
                         'torch>=1.6.0',
                         'torchtext>=0.7.0',
-                        'tqdm>=4.46.0'
+                        'tqdm>=4.50.0'
                         ],
       extras_require={
           'tests': ['coverage',
