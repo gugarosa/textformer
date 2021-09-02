@@ -30,7 +30,6 @@ class BiGRUDecoder(Decoder):
 
         logger.info('Overriding class: Decoder -> BiGRUDecoder.')
 
-        # Overriding its parent class
         super(BiGRUDecoder, self).__init__()
 
         # Number of output units

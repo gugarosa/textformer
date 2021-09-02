@@ -39,7 +39,6 @@ class TranslationDataset(data.Dataset):
         # Loads the input file and creates a list of examples
         examples = self._load_data(source_path, target_path, fields)
 
-        # Overriding its parent class
         super(TranslationDataset, self).__init__(examples, fields, **kwargs)
 
         logger.info('Class overrided.')
@@ -59,14 +58,10 @@ class TranslationDataset(data.Dataset):
 
         logger.debug('Loading %s and %s ...', source_path, target_path)
 
-        # Tries to invoke the following functions
         try:
-            # Creates a list to hold the examples
             examples = []
 
-            # While both files are open
             with io.open(source_path, mode='r', encoding='utf-8') as s, io.open(target_path, mode='r', encoding='utf-8') as t:
-                # For every line in both files
                 for source_line, target_line in zip(s, t):
                     # Strips the line and adds back to the variable
                     source_line, target_line = source_line.strip(), target_line.strip()
@@ -81,12 +76,9 @@ class TranslationDataset(data.Dataset):
 
             return examples
 
-        # If file can not be loaded
         except FileNotFoundError:
-            # Creates an error
             e = f'Files not found: {source_path} or {target_path}.'
 
-            # Logs the error
             logger.error(e)
 
             raise

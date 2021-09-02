@@ -37,7 +37,6 @@ class ConvDecoder(Decoder):
 
         logger.info('Overriding class: Encoder -> ConvDecoder.')
 
-        # Overriding its parent class
         super(ConvDecoder, self).__init__()
 
         # Number of output units

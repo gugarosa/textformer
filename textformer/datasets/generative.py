@@ -33,7 +33,6 @@ class GenerativeDataset(data.Dataset):
         # Loads the input file and creates a list of examples
         example = self._load_data(file_path, fields)
 
-        # Overriding its parent class
         super(GenerativeDataset, self).__init__(example, fields, **kwargs)
 
         logger.info('Class overrided.')
@@ -52,16 +51,11 @@ class GenerativeDataset(data.Dataset):
 
         logger.debug('Loading %s ...', file_path)
 
-        # Tries to invoke the following functions
         try:
-            # While the file is open
             with io.open(file_path, mode='r', encoding='utf-8') as f:
-                # Creates a list of text
                 text = []
 
-                # For every line in the file
                 for line in f:
-                    # Pre-process the line and appends to the list
                     text += fields[0][1].preprocess(line)
 
                 logger.debug('Data loaded.')
@@ -71,12 +65,9 @@ class GenerativeDataset(data.Dataset):
 
             return example
 
-        # If file can not be loaded
         except FileNotFoundError:
-            # Creates an error
             e = f'File not found: {file_path}.'
 
-            # Logs the error
             logger.error(e)
 
             raise

@@ -52,7 +52,6 @@ class Transformer(Model):
         D = SelfAttentionDecoder(
             n_output, n_hidden, n_forward, n_layers, n_heads, dropout, max_length)
 
-        # Overrides its parent class with any custom arguments if needed
         super(Transformer, self).__init__(E, D, None, init_weights, device)
 
         # Source vocabulary padding token
@@ -74,7 +73,6 @@ class Transformer(Model):
 
         """
 
-        # Creates the encoding mask
         x_mask = (x != self.source_pad_index).unsqueeze(1).unsqueeze(2)
 
         return x_mask
@@ -90,13 +88,8 @@ class Transformer(Model):
 
         """
 
-        # Creates the padded target mask
         y_pad_mask = (y != self.target_pad_index).unsqueeze(1).unsqueeze(2)
-
-        # Creates the subtraction target mask
         y_sub_mask = torch.tril(torch.ones((y.shape[1], y.shape[1]))).bool()
-
-        # Creates the decoding mask
         y_mask = y_pad_mask & y_sub_mask
 
         return y_mask
@@ -155,7 +148,6 @@ class Transformer(Model):
         # Numericalizing the tokens
         tokens = field.numericalize([tokens]).to(self.device)
 
-        # For every possible length
         for _ in range(length):
             # Creating encoder mask
             enc_mask = self.create_source_mask(tokens)
@@ -229,7 +221,6 @@ class Transformer(Model):
         tokens = torch.LongTensor(
             [trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0).to(self.device)
 
-        # For every possible token in maximum length
         for _ in range(max_length):
             # Creating decoder mask
             dec_mask = self.create_target_mask(tokens)
@@ -247,7 +238,6 @@ class Transformer(Model):
 
             # Check if has reached the end of string
             if sampled_token == trg_field.vocab.stoi[trg_field.eos_token]:
-                # If yes, breaks the loop
                 break
 
         # Decodes the tokens into text
@@ -278,11 +268,9 @@ class Transformer(Model):
         # Defines a list for holding the targets and predictions
         targets, preds = [], []
 
-        # For every example in the dataset
         for data in dataset:
             # Calculates the prediction, i.e., translated text
-            pred, _ = self.translate_text(
-                data.text, src_field, trg_field, max_length)
+            pred, _ = self.translate_text(data.text, src_field, trg_field, max_length)
 
             # Appends the prediction without the `<eos>` token
             preds.append(pred[:-1])

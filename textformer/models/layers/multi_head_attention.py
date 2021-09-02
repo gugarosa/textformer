@@ -27,7 +27,6 @@ class MultiHeadAttention(nn.Module):
 
         """
 
-        # Overriding its parent class
         super(MultiHeadAttention, self).__init__()
 
         # Asserts if number of hidden units is divisible by number of heads

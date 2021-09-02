@@ -29,7 +29,6 @@ class BiGRUEncoder(Encoder):
 
         logger.info('Overriding class: Encoder -> BiGRUEncoder.')
 
-        # Overriding its parent class
         super(BiGRUEncoder, self).__init__()
 
         # Number of input units

@@ -47,7 +47,6 @@ class AttSeq2Seq(Model):
         # Creating the decoder network
         D = BiGRUDecoder(n_output, n_hidden_enc, n_hidden_dec, n_embedding, dropout)
 
-        # Overrides its parent class with any custom arguments if needed
         super(AttSeq2Seq, self).__init__(E, D, ignore_token, init_weights, device)
 
         logger.info('Class overrided.')
@@ -132,7 +131,6 @@ class AttSeq2Seq(Model):
         # Removes the batch dimension from the tokens
         tokens = tokens.squeeze(0)
 
-        # For every possible length
         for _ in range(length):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
@@ -193,7 +191,6 @@ class AttSeq2Seq(Model):
         # Creating a tensor with `<sos>` token from target vocabulary
         tokens = torch.LongTensor([trg_field.vocab.stoi[trg_field.init_token]]).unsqueeze(0).to(self.device)
 
-        # For every possible token in maximum length
         for i in range(max_length):
             # Inhibits the gradient from updating the parameters
             with torch.no_grad():
@@ -211,7 +208,6 @@ class AttSeq2Seq(Model):
 
             # Check if has reached the end of string
             if sampled_token == trg_field.vocab.stoi[trg_field.eos_token]:
-                # If yes, breaks the loop
                 break
 
         # Decodes the tokens into text
@@ -242,7 +238,6 @@ class AttSeq2Seq(Model):
         # Defines a list for holding the targets and predictions
         targets, preds = [], []
 
-        # For every example in the dataset
         for data in dataset:
             # Calculates the prediction, i.e., translated text
             pred, _ = self.translate_text(data.text, src_field, trg_field, max_length)

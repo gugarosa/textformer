@@ -35,7 +35,6 @@ class ConvEncoder(Encoder):
 
         logger.info('Overriding class: Encoder -> ConvEncoder.')
 
-        # Overriding its parent class
         super(ConvEncoder, self).__init__()
 
         # Number of input units

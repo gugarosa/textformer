@@ -28,7 +28,6 @@ class GRUDecoder(Decoder):
 
         logger.info('Overriding class: Decoder -> GRUDecoder.')
 
-        # Overriding its parent class
         super(GRUDecoder, self).__init__()
 
         # Number of output units

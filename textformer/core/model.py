@@ -27,7 +27,6 @@ class Encoder(torch.nn.Module):
 
         """
 
-        # Overrides its parent class with any custom arguments if needed
         super(Encoder, self).__init__()
 
     def forward(self, x):
@@ -60,7 +59,6 @@ class Decoder(torch.nn.Module):
 
         """
 
-        # Overrides its parent class with any custom arguments if needed
         super(Decoder, self).__init__()
 
     def forward(self, x):
@@ -100,7 +98,6 @@ class Model(torch.nn.Module):
 
         """
 
-        # Override its parent class
         super(Model, self).__init__()
 
         # Defining the encoder network
@@ -120,7 +117,6 @@ class Model(torch.nn.Module):
 
         # Checks if GPU is avaliable
         if torch.cuda.is_available() and device == 'cuda':
-            # Uses CUDA in the whole class
             self.cuda()
 
         # Setting default tensor type to float
@@ -196,21 +192,14 @@ class Model(torch.nn.Module):
         # Defining an optimizer
         self.optimizer = optim.Adam(self.parameters())
 
-        # Checking if there is a token to be ignored
         if ignore_token:
-            # If yes, define loss based on it
             self.loss = nn.CrossEntropyLoss(ignore_index=ignore_token)
 
-        # If there is no token to be ignored
         else:
-            # Defines the loss as usual
             self.loss = nn.CrossEntropyLoss()
 
-        # Check if there is a tuple for the weights initialization
         if init_weights:
-            # Iterate over all possible parameters
             for _, p in self.named_parameters():
-                # Initializes with a uniform distributed value
                 nn.init.uniform_(p.data, init_weights[0], init_weights[1])
 
     def dump(self, **kwargs):
@@ -218,14 +207,10 @@ class Model(torch.nn.Module):
 
         """
 
-        # Iterate through key-word arguments
         for k, v in kwargs.items():
-            # Check if there is already an instance of current
             if k not in self.history.keys():
-                # If not, creates an empty list
                 self.history[k] = []
 
-            # Appends the new value to the list
             self.history[k].append(v)
 
     def step(self, batch, clip):
@@ -309,11 +294,9 @@ class Model(torch.nn.Module):
 
         logger.info('Fitting model ...')
 
-        # Iterate through all epochs
         for epoch in range(epochs):
             logger.info('Epoch %d/%d', epoch+1, epochs)
 
-            # Calculating the time of the epoch's starting
             start = time.time()
 
             # Setting the training flag
@@ -322,9 +305,7 @@ class Model(torch.nn.Module):
             # Initializes both losses as zero
             train_loss, val_loss = 0.0, 0.0
 
-            # Defines a `tqdm` variable
             with tqdm(total=len(train_iterator)) as t:
-                # For every batch in the iterator
                 for i, batch in enumerate(train_iterator):
                     # Calculates the training loss
                     train_loss += self.step(batch, 1)
@@ -338,16 +319,13 @@ class Model(torch.nn.Module):
 
             logger.info('Loss: %s | PPL: %s', train_loss, math.exp(train_loss))
 
-            # If there is a validation iterator
             if val_iterator:
                 # Setting the evalution flag
                 self.eval()
 
                 # Inhibits the gradient from updating the parameters
                 with torch.no_grad():
-                    # Defines a `tqdm` variable
                     with tqdm(total=len(train_iterator)) as t:
-                        # For every batch in the iterator
                         for i, batch in enumerate(val_iterator):
                             # Calculates the validation loss
                             val_loss += self.val_step(batch)
@@ -361,7 +339,6 @@ class Model(torch.nn.Module):
 
                 logger.info('Val Loss: %s | Val PPL: %s', val_loss, math.exp(val_loss))
 
-            # Calculating the time of the epoch's ending
             end = time.time()
 
             # Dumps the desired variables to the model's history
@@ -385,7 +362,6 @@ class Model(torch.nn.Module):
 
         # Inhibits the gradient from updating the parameters
         with torch.no_grad():
-            # For every batch in the iterator
             for batch in test_iterator:
                 # Calculates the test loss
                 test_loss += self.val_step(batch)

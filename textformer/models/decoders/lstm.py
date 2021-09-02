@@ -28,7 +28,6 @@ class LSTMDecoder(Decoder):
 
         logger.info('Overriding class: Decoder -> LSTMDecoder.')
 
-        # Overriding its parent class
         super(LSTMDecoder, self).__init__()
 
         # Number of output units

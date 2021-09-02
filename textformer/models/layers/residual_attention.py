@@ -25,7 +25,6 @@ class ResidualAttention(nn.Module):
 
         """
 
-        # Overriding its parent class
         super(ResidualAttention, self).__init__()
 
         # Defining the energy-based layer

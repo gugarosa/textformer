@@ -28,7 +28,6 @@ class LSTMEncoder(Encoder):
 
         logger.info('Overriding class: Encoder -> LSTMEncoder.')
 
-        # Overriding its parent class
         super(LSTMEncoder, self).__init__()
 
         # Number of input units

@@ -27,7 +27,6 @@ class GRUEncoder(Encoder):
 
         logger.info('Overriding class: Encoder -> GRUEncoder.')
 
-        # Overriding its parent class
         super(GRUEncoder, self).__init__()
 
         # Number of input units

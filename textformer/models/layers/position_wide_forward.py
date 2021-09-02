@@ -23,7 +23,6 @@ class PositionWideForward(nn.Module):
 
         """
 
-        # Overriding its parent class
         super(PositionWideForward, self).__init__()
 
         # Defining the linear (feed forward) layers

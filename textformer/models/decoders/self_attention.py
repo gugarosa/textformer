@@ -29,7 +29,6 @@ class SelfAttentionLayer(nn.Module):
 
         """
 
-        # Overriding its parent class
         super(SelfAttentionLayer, self).__init__()
 
         # Normalization layers
@@ -104,7 +103,6 @@ class SelfAttentionDecoder(Decoder):
 
         logger.info('Overriding class: Encoder -> SelfAttentionDecoder.')
 
-        # Overriding its parent class
         super(SelfAttentionDecoder, self).__init__()
 
         # Number of output units

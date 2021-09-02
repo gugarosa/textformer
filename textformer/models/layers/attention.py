@@ -24,7 +24,6 @@ class Attention(nn.Module):
 
         """
 
-        # Overriding its parent class
         super(Attention, self).__init__()
 
         # Defining the energy-based layer
